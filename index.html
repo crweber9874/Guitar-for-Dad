@@ -1,0 +1,3157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guitar for Dad</title>
+<script>
+  // Suppress Tailwind CDN production warning (this is a personal teaching tool, not production)
+  (function() {
+    const _w = console.warn;
+    console.warn = function(...a) {
+      if (a[0] && typeof a[0] === 'string' && a[0].includes('cdn.tailwindcss')) return;
+      _w.apply(console, a);
+    };
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* New palette: warm charcoal base, teal primary accent, coral secondary */
+    --bg: #12151C;
+    --panel: #1A1F29;
+    --panel-2: #232936;
+    --border: #323A48;
+    --ink: #ECEFF4;
+    --ink-soft: #98A2B3;
+    /* Primary accent (teal) — old --amber name kept as alias so existing refs work */
+    --amber: #46C9B0;
+    --amber-soft: #7FE0CC;
+    --accent: #46C9B0;
+    --accent-soft: #7FE0CC;
+    /* Secondary accent (coral) */
+    --rust: #FF7A5C;
+    --accent2: #FF7A5C;
+    /* Supporting */
+    --moss: #8BD46F;
+    --ok: #8BD46F;
+    --sky: #6FB4E8;
+  }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+  .display { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .panel { background: var(--panel); border: 1px solid var(--border); }
+  .panel-2 { background: var(--panel-2); border: 1px solid var(--border); }
+  .ink-soft { color: var(--ink-soft); }
+  .amber { color: var(--amber); }
+  .nav-active { background: var(--amber); color: #12151C !important; }
+  .nav-active i { color: #12151C; }
+  .section-title { font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--amber); }
+  .modal-backdrop { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
+  @keyframes pop { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .modal-card { animation: pop 0.2s ease-out forwards; }
+  .chord-card { transition: transform 0.15s ease, border-color 0.15s ease; }
+  .chord-card:hover { transform: translateY(-2px); border-color: var(--amber); }
+  .song-card { transition: transform 0.2s cubic-bezier(.4,0,.2,1), border-color 0.2s; }
+  .song-card:hover { transform: translateY(-3px); border-color: var(--amber); }
+  .step-row { transition: all 0.15s ease; }
+  .step-done { background: rgba(111, 170, 127, 0.12); border-color: var(--moss) !important; }
+  .step-done .step-num { background: var(--moss); color: #12151C; }
+  input[type=range] { -webkit-appearance: none; height: 6px; background: var(--border); border-radius: 3px; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: var(--amber); border-radius: 50%; cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var(--amber); border-radius: 50%; cursor: pointer; border: none; }
+  .beat-pulse { animation: beatp 0.1s ease-out; }
+  @keyframes beatp { 0% { transform: scale(1.6); } 100% { transform: scale(1); } }
+  /* Hide scrollbar for chord scroller */
+  .h-scroll::-webkit-scrollbar { height: 6px; }
+  .h-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  /* Print styles for teaching */
+  @media print {
+    body { background: white; color: black; }
+    .no-print { display: none !important; }
+    .panel, .panel-2 { background: white; border-color: #ccc; }
+  }
+  /* Bottom nav safe area */
+  .bottom-nav { padding-bottom: env(safe-area-inset-bottom); }
+</style>
+</head>
+<body class="min-h-screen pb-24 md:pb-0">
+
+<!-- ============ TOP NAV ============ -->
+<nav class="sticky top-0 z-40 panel border-b border-l-0 border-r-0 border-t-0">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center justify-between h-14">
+      <button onclick="show('home')" class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: var(--amber)">
+          <i class="fa-solid fa-guitar text-lg" style="color: #12151C"></i>
+        </div>
+        <div class="text-left leading-tight">
+          <div class="display text-lg font-bold">Guitar for Dad</div>
+          <div class="text-[10px] ink-soft tracking-wider uppercase">Teaching Workbook</div>
+        </div>
+      </button>
+      <div class="hidden md:flex items-center gap-1">
+        <button data-nav="home" onclick="show('home')" class="nav-btn px-3.5 py-1.5 rounded-full text-sm font-medium ink-soft hover:text-white transition-colors">Home</button>
+        <button data-nav="lessons" onclick="show('lessons')" class="nav-btn px-3.5 py-1.5 rounded-full text-sm font-medium ink-soft hover:text-white transition-colors">Lessons</button>
+        <button data-nav="chords" onclick="show('chords')" class="nav-btn px-3.5 py-1.5 rounded-full text-sm font-medium ink-soft hover:text-white transition-colors">Chords</button>
+        <button data-nav="caged" onclick="show('caged')" class="nav-btn px-3.5 py-1.5 rounded-full text-sm font-medium ink-soft hover:text-white transition-colors">CAGED</button>
+        <button data-nav="theory" onclick="show('theory')" class="nav-btn px-3.5 py-1.5 rounded-full text-sm font-medium ink-soft hover:text-white transition-colors">Theory</button>
+        <button data-nav="scales" onclick="show('scales')" class="nav-btn px-3.5 py-1.5 rounded-full text-sm font-medium ink-soft hover:text-white transition-colors">Scales</button>
+        <button data-nav="finder" onclick="show('finder')" class="nav-btn px-3.5 py-1.5 rounded-full text-sm font-medium ink-soft hover:text-white transition-colors">Finder</button>
+        <button data-nav="songs" onclick="show('songs')" class="nav-btn px-3.5 py-1.5 rounded-full text-sm font-medium ink-soft hover:text-white transition-colors">Songs</button>
+        <button data-nav="tools" onclick="show('tools')" class="nav-btn px-3.5 py-1.5 rounded-full text-sm font-medium ink-soft hover:text-white transition-colors">Tools</button>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="audio-badge" onclick="testSound()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors" style="background: var(--panel-2); color: var(--ink-soft);">
+          <i class="fa-solid fa-volume-low"></i> <span>Tap to enable sound</span>
+        </button>
+        <button onclick="downloadFile()" class="hidden sm:flex items-center gap-2 px-3 py-1.5 panel-2 rounded-full text-xs font-medium hover:border-amber-500 transition-colors">
+          <i class="fa-solid fa-download text-xs"></i> <span class="hidden lg:inline">Save offline</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HOME ============ -->
+<section id="view-home" class="view max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-12">
+  <!-- Hero -->
+  <div class="max-w-3xl">
+    <div class="eyebrow mb-3">A simple, offline guitar workbook</div>
+    <h1 class="display text-4xl sm:text-6xl font-bold leading-[0.95] tracking-tight">Guitar<br><span class="amber italic">for Dad</span>.</h1>
+    <p class="mt-5 text-lg ink-soft max-w-xl">Everything you need to teach (or learn) guitar from zero: clear chord diagrams, simple lessons in order, 100+ songs, and tools that actually make sound.</p>
+  </div>
+
+  <!-- New here? Start path -->
+  <div class="mt-8 panel rounded-2xl p-6 sm:p-7" style="background: linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%);">
+    <div class="flex items-center gap-2 mb-1">
+      <i class="fa-solid fa-circle-play amber"></i>
+      <div class="eyebrow">New here? Start in this order</div>
+    </div>
+    <h2 class="display text-xl font-bold mb-5">Four steps to your first song</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <button onclick="show('tools')" class="text-left panel rounded-xl p-4 hover:border-amber-500 transition-colors group">
+        <div class="flex items-center justify-between mb-2">
+          <span class="mono text-xs amber">STEP 1</span>
+          <i class="fa-solid fa-sliders ink-soft group-hover:text-white transition-colors"></i>
+        </div>
+        <div class="font-semibold text-sm mb-1">Tune up</div>
+        <div class="text-xs ink-soft">Use the tuner tones in Tools. Match each string by ear.</div>
+      </button>
+      <button onclick="show('lessons')" class="text-left panel rounded-xl p-4 hover:border-amber-500 transition-colors group">
+        <div class="flex items-center justify-between mb-2">
+          <span class="mono text-xs amber">STEP 2</span>
+          <i class="fa-solid fa-hand-spock ink-soft group-hover:text-white transition-colors"></i>
+        </div>
+        <div class="font-semibold text-sm mb-1">Learn 3 chords</div>
+        <div class="text-xs ink-soft">Em, Am, D. Enough for real songs. Lesson 3.</div>
+      </button>
+      <button onclick="show('lessons')" class="text-left panel rounded-xl p-4 hover:border-amber-500 transition-colors group">
+        <div class="flex items-center justify-between mb-2">
+          <span class="mono text-xs amber">STEP 3</span>
+          <i class="fa-solid fa-guitar ink-soft group-hover:text-white transition-colors"></i>
+        </div>
+        <div class="font-semibold text-sm mb-1">One strum</div>
+        <div class="text-xs ink-soft">Down, down-up, up-down-up. Lesson 5.</div>
+      </button>
+      <button onclick="openSong('knockin')" class="text-left panel rounded-xl p-4 hover:border-amber-500 transition-colors group">
+        <div class="flex items-center justify-between mb-2">
+          <span class="mono text-xs amber">STEP 4</span>
+          <i class="fa-solid fa-music ink-soft group-hover:text-white transition-colors"></i>
+        </div>
+        <div class="font-semibold text-sm mb-1">Play a song</div>
+        <div class="text-xs ink-soft">Knockin' on Heaven's Door. 4 chords. Tap to open.</div>
+      </button>
+    </div>
+    <div class="flex flex-wrap gap-3 mt-5">
+      <button onclick="show('lessons')" class="px-5 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2" style="background: var(--amber); color: #12151C;">
+        Begin Lesson 1 <i class="fa-solid fa-arrow-right text-xs"></i>
+      </button>
+      <button onclick="show('songs')" class="px-5 py-2.5 panel-2 rounded-full font-medium text-sm hover:border-amber-500 transition-colors flex items-center gap-2">
+        <i class="fa-solid fa-magnifying-glass text-xs"></i> Browse all songs
+      </button>
+    </div>
+  </div>
+
+  <!-- Explore everything -->
+  <div class="mt-10">
+    <div class="eyebrow mb-3">Everything inside</div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <button onclick="show('lessons')" class="panel rounded-2xl p-5 text-left hover:border-amber-500 transition-colors">
+        <i class="fa-solid fa-graduation-cap text-2xl amber mb-3"></i>
+        <div class="display text-2xl font-bold">10</div>
+        <div class="text-xs ink-soft mt-1">Lessons · hold the guitar → first solo</div>
+      </button>
+      <button onclick="show('songs')" class="panel rounded-2xl p-5 text-left hover:border-amber-500 transition-colors">
+        <i class="fa-solid fa-record-vinyl text-2xl amber mb-3"></i>
+        <div class="display text-2xl font-bold" id="home-song-count">100+</div>
+        <div class="text-xs ink-soft mt-1">Songs · folk, rock, country, blues, pop</div>
+      </button>
+      <button onclick="show('chords')" class="panel rounded-2xl p-5 text-left hover:border-amber-500 transition-colors">
+        <i class="fa-solid fa-hand-spock text-2xl amber mb-3"></i>
+        <div class="display text-2xl font-bold">35+</div>
+        <div class="text-xs ink-soft mt-1">Chords · diagrams you can hear</div>
+      </button>
+      <button onclick="show('tools')" class="panel rounded-2xl p-5 text-left hover:border-amber-500 transition-colors">
+        <i class="fa-solid fa-sliders text-2xl amber mb-3"></i>
+        <div class="display text-2xl font-bold">4</div>
+        <div class="text-xs ink-soft mt-1">Tools · tuner, metronome, fretboard</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Secondary explore row -->
+  <div class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <button onclick="show('theory')" class="panel rounded-2xl p-5 text-left hover:border-amber-500 transition-colors">
+      <i class="fa-solid fa-book-open text-2xl amber mb-3"></i>
+      <div class="font-semibold">Theory</div>
+      <div class="text-xs ink-soft mt-1">Why chords sound good together</div>
+    </button>
+    <button onclick="show('caged')" class="panel rounded-2xl p-5 text-left hover:border-amber-500 transition-colors">
+      <i class="fa-solid fa-shapes text-2xl amber mb-3"></i>
+      <div class="font-semibold">CAGED</div>
+      <div class="text-xs ink-soft mt-1">Unlock the whole fretboard</div>
+    </button>
+    <button onclick="show('scales')" class="panel rounded-2xl p-5 text-left hover:border-amber-500 transition-colors">
+      <i class="fa-solid fa-wave-square text-2xl amber mb-3"></i>
+      <div class="font-semibold">Scales</div>
+      <div class="text-xs ink-soft mt-1">Pentatonic in 5 positions</div>
+    </button>
+    <button onclick="show('finder')" class="panel rounded-2xl p-5 text-left hover:border-amber-500 transition-colors">
+      <i class="fa-solid fa-magnifying-glass-chart text-2xl amber mb-3"></i>
+      <div class="font-semibold">Finder</div>
+      <div class="text-xs ink-soft mt-1">Any chord/scale, any tuning</div>
+    </button>
+  </div>
+
+  <!-- Featured songs -->
+  <div class="mt-10">
+    <div class="flex items-center justify-between mb-3">
+      <div class="eyebrow">Great first songs</div>
+      <button onclick="show('songs')" class="text-xs amber font-medium hover:underline">See all →</button>
+    </div>
+    <div id="home-featured" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+  </div>
+
+  <!-- Sound check tip -->
+  <div class="mt-8 panel rounded-2xl p-5 flex items-start gap-3">
+    <i class="fa-solid fa-volume-high amber text-lg mt-0.5"></i>
+    <div>
+      <div class="font-semibold text-sm">Make sure your sound is on</div>
+      <div class="text-xs ink-soft mt-1">This app plays real notes. Tap any chord diagram to hear it, or <button onclick="strumChord('G'); flashSoundTest(this)" class="amber underline font-medium">tap here to test the sound</button>. On phones, turn off silent mode.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LESSONS ============ -->
+<section id="view-lessons" class="view hidden max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-12">
+  <div class="mb-7">
+    <div class="eyebrow mb-2">Technique</div>
+    <h2 class="section-title display">Lessons, in order.</h2>
+    <p class="ink-soft mt-2">Each lesson is a few minutes. Tap a step when it's done.</p>
+  </div>
+  <div id="lessons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+</section>
+
+<!-- ============ CHORDS ============ -->
+<section id="view-chords" class="view hidden max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-12">
+  <div class="mb-7">
+    <div class="eyebrow mb-2">Chord Library</div>
+    <h2 class="section-title display">Every chord you need.</h2>
+    <p class="ink-soft mt-2">Organized by lesson order. Tap any chord for a bigger view and the sound.</p>
+  </div>
+  <div class="space-y-8">
+    <div>
+      <div class="flex items-baseline gap-3 mb-3">
+        <div class="mono text-xs amber">LESSON 03</div>
+        <div class="text-sm font-semibold">Start Here — Your First Three Chords</div>
+      </div>
+      <div id="chords-first" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
+    </div>
+    <div>
+      <div class="flex items-baseline gap-3 mb-3">
+        <div class="mono text-xs amber">LESSON 04</div>
+        <div class="text-sm font-semibold">Open Chords — The Workhorses</div>
+      </div>
+      <div id="chords-open" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
+    </div>
+    <div>
+      <div class="flex items-baseline gap-3 mb-3">
+        <div class="mono text-xs amber">LESSON 07+</div>
+        <div class="text-sm font-semibold">Sevenths — Add Color</div>
+      </div>
+      <div id="chords-7" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
+    </div>
+    <div>
+      <div class="flex items-baseline gap-3 mb-3">
+        <div class="mono text-xs amber">LESSON 08+</div>
+        <div class="text-sm font-semibold">Sus &amp; Add — Tension and Release</div>
+      </div>
+      <div id="chords-sus" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
+    </div>
+    <div>
+      <div class="flex items-baseline gap-3 mb-3">
+        <div class="mono text-xs amber">LESSON 09</div>
+        <div class="text-sm font-semibold">Barre Chords — Movable Shapes</div>
+      </div>
+      <div id="chords-barre" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAGED ============ -->
+<section id="view-caged" class="view hidden max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-12">
+  <div class="mb-7">
+    <div class="eyebrow mb-2">The System</div>
+    <h2 class="section-title display">CAGED — the whole neck, finally.</h2>
+    <p class="ink-soft mt-2 max-w-2xl">Every chord on guitar comes from five movable shapes: <span class="mono amber">C, A, G, E, D</span>. Learn them once and you can play any chord, anywhere on the neck. Here's how.</p>
+  </div>
+
+  <div class="panel rounded-2xl p-6 mb-6">
+    <div class="eyebrow mb-3">The idea</div>
+    <p class="text-sm ink-soft leading-relaxed mb-3">
+      You already know how to play an open C chord. The shape of your fingers — that exact pattern of dots — can be moved up the neck (with a barre across the open strings) to play C-shape major chords in <em>other keys</em>. Same for A, G, E, and D shapes.
+    </p>
+    <p class="text-sm ink-soft leading-relaxed">
+      The five shapes connect like puzzle pieces around the neck. Play C with the open C shape (3rd fret root on A string). Then the A shape (root still on A, at fret 3 → that's another C). Then G shape, E shape, D shape — all giving you the chord C, just in different positions. <span class="font-semibold text-white">Five places to play one chord.</span>
+    </p>
+  </div>
+
+  <div class="eyebrow mb-3">The five shapes (shown as movable barre forms)</div>
+  <div id="caged-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8"></div>
+
+  <div class="panel rounded-2xl p-6">
+    <div class="eyebrow mb-3">How to practice CAGED</div>
+    <ol class="space-y-3 text-sm">
+      <li class="flex gap-3"><span class="mono amber pt-0.5">01</span><span><span class="font-semibold">Pick one note.</span> Say, C. Find C on the low E string (fret 8) and the A string (fret 3).</span></li>
+      <li class="flex gap-3"><span class="mono amber pt-0.5">02</span><span><span class="font-semibold">Play C using the E shape at fret 8</span> (barre across, E-shape fingers). That's a C major chord with the root on the low E string.</span></li>
+      <li class="flex gap-3"><span class="mono amber pt-0.5">03</span><span><span class="font-semibold">Move to the D shape at fret 10.</span> Then C shape at fret 12. Then A shape at fret 15. Then G shape at fret 17. All the same chord, climbing the neck.</span></li>
+      <li class="flex gap-3"><span class="mono amber pt-0.5">04</span><span><span class="font-semibold">Do it for G, then D, then A.</span> Within a month, every key feels reachable from anywhere.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ THEORY ============ -->
+<section id="view-theory" class="view hidden max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-12">
+  <div class="mb-7">
+    <div class="eyebrow mb-2">How Music Works</div>
+    <h2 class="section-title display">Theory, the useful parts.</h2>
+    <p class="ink-soft mt-2 max-w-2xl">Not the academic version — just enough to understand why chords sound good together, why songs are in a "key," and how to figure out songs by ear. Read top to bottom.</p>
+  </div>
+
+  <!-- 1. The 12 notes -->
+  <div class="panel rounded-2xl p-6 mb-5">
+    <div class="flex items-baseline gap-3 mb-3">
+      <div class="mono text-xs amber">01</div>
+      <h3 class="display text-2xl font-bold">There are only 12 notes</h3>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed mb-4">All of Western music is built from twelve notes. After the twelfth, they repeat an octave higher. On guitar, one fret = one note = one "half step." Here's the full set:</p>
+    <div class="flex flex-wrap gap-1.5 mb-4">
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 font-bold">A</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 ink-soft">A♯/B♭</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 font-bold">B</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 font-bold">C</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 ink-soft">C♯/D♭</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 font-bold">D</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 ink-soft">D♯/E♭</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 font-bold">E</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 font-bold">F</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 ink-soft">F♯/G♭</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 font-bold">G</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2 ink-soft">G♯/A♭</span>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed">Two things to notice: the "black key" notes have two names (A♯ and B♭ are the same pitch — context decides which name). And there's <span class="text-white font-semibold">no sharp between B–C or E–F</span>. Those two pairs are only one fret apart. That quirk explains a lot of guitar.</p>
+  </div>
+
+  <!-- 2. Intervals -->
+  <div class="panel rounded-2xl p-6 mb-5">
+    <div class="flex items-baseline gap-3 mb-3">
+      <div class="mono text-xs amber">02</div>
+      <h3 class="display text-2xl font-bold">Intervals — the distance between notes</h3>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed mb-4">An interval is just how many half-steps (frets) apart two notes are. These are the building blocks of every chord and scale. The important ones:</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+      <div class="panel-2 rounded-xl p-3 flex items-center justify-between"><span class="text-sm">Half step (1 fret)</span><span class="mono text-xs amber">minor 2nd</span></div>
+      <div class="panel-2 rounded-xl p-3 flex items-center justify-between"><span class="text-sm">Whole step (2 frets)</span><span class="mono text-xs amber">major 2nd</span></div>
+      <div class="panel-2 rounded-xl p-3 flex items-center justify-between"><span class="text-sm">3 frets</span><span class="mono text-xs amber">minor 3rd</span></div>
+      <div class="panel-2 rounded-xl p-3 flex items-center justify-between"><span class="text-sm">4 frets</span><span class="mono text-xs amber">major 3rd</span></div>
+      <div class="panel-2 rounded-xl p-3 flex items-center justify-between"><span class="text-sm">5 frets</span><span class="mono text-xs amber">perfect 4th</span></div>
+      <div class="panel-2 rounded-xl p-3 flex items-center justify-between"><span class="text-sm">7 frets</span><span class="mono text-xs amber">perfect 5th</span></div>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed">The <span class="text-white font-semibold">3rd</span> is the most important interval to know. A major 3rd (4 frets) sounds bright and happy. A minor 3rd (3 frets) sounds sad. That single fret of difference is what separates a major chord from a minor one.</p>
+  </div>
+
+  <!-- 3. The major scale -->
+  <div class="panel rounded-2xl p-6 mb-5">
+    <div class="flex items-baseline gap-3 mb-3">
+      <div class="mono text-xs amber">03</div>
+      <h3 class="display text-2xl font-bold">The major scale — the ruler</h3>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed mb-4">Almost everything in theory is measured against the major scale. It's seven notes built with a fixed pattern of whole (W) and half (H) steps:</p>
+    <div class="panel-2 rounded-xl p-4 mb-4 text-center">
+      <div class="mono text-lg amber font-bold tracking-wide">W – W – H – W – W – W – H</div>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed mb-3">Start on C and follow that pattern and you get <span class="mono text-white">C D E F G A B</span> — the white keys on a piano, no sharps or flats. That's why C major is the "home base" key. We number these notes 1 through 7:</p>
+    <div class="flex flex-wrap gap-1.5 mb-4">
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2"><span class="amber font-bold">1</span> C</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2"><span class="amber font-bold">2</span> D</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2"><span class="amber font-bold">3</span> E</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2"><span class="amber font-bold">4</span> F</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2"><span class="amber font-bold">5</span> G</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2"><span class="amber font-bold">6</span> A</span>
+      <span class="mono text-sm px-3 py-2 rounded-lg panel-2"><span class="amber font-bold">7</span> B</span>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed">Those numbers are the secret decoder ring for the next three sections.</p>
+  </div>
+
+  <!-- 4. How chords are built -->
+  <div class="panel rounded-2xl p-6 mb-5">
+    <div class="flex items-baseline gap-3 mb-3">
+      <div class="mono text-xs amber">04</div>
+      <h3 class="display text-2xl font-bold">How chords are built — stack 3rds</h3>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed mb-4">A basic chord (a "triad") is three notes: take a starting note, skip one, take the next, skip one, take the next. In numbers, that's <span class="mono text-white">1 – 3 – 5</span>.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+      <div class="panel-2 rounded-xl p-4">
+        <div class="font-semibold mb-1">C major = C·E·G</div>
+        <div class="text-xs ink-soft">Notes 1, 3, 5 of the C scale. The 3rd (E) is a major 3rd above C → <span class="amber">happy.</span></div>
+      </div>
+      <div class="panel-2 rounded-xl p-4">
+        <div class="font-semibold mb-1">C minor = C·E♭·G</div>
+        <div class="text-xs ink-soft">Flatten that 3rd by one fret (E→E♭) and the chord turns <span class="amber">sad.</span> Everything else stays.</div>
+      </div>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed mb-3">Add the 7th note and you get richer chords. This is the whole logic behind the Chord Finder:</p>
+    <div class="space-y-2">
+      <div class="panel-2 rounded-xl p-3 flex items-center justify-between flex-wrap gap-2"><span class="text-sm">Major 7 <span class="ink-soft">(dreamy)</span></span><span class="mono text-xs amber">1 · 3 · 5 · 7</span></div>
+      <div class="panel-2 rounded-xl p-3 flex items-center justify-between flex-wrap gap-2"><span class="text-sm">Dominant 7 <span class="ink-soft">(bluesy, wants to resolve)</span></span><span class="mono text-xs amber">1 · 3 · 5 · ♭7</span></div>
+      <div class="panel-2 rounded-xl p-3 flex items-center justify-between flex-wrap gap-2"><span class="text-sm">Minor 7 <span class="ink-soft">(smooth, mellow)</span></span><span class="mono text-xs amber">1 · ♭3 · 5 · ♭7</span></div>
+      <div class="panel-2 rounded-xl p-3 flex items-center justify-between flex-wrap gap-2"><span class="text-sm">Sus4 <span class="ink-soft">(suspended, unresolved)</span></span><span class="mono text-xs amber">1 · 4 · 5</span></div>
+    </div>
+  </div>
+
+  <!-- 5. Keys & the number system -->
+  <div class="panel rounded-2xl p-6 mb-5">
+    <div class="flex items-baseline gap-3 mb-3">
+      <div class="mono text-xs amber">05</div>
+      <h3 class="display text-2xl font-bold">Keys &amp; the Nashville number system</h3>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed mb-4">A "key" means a song mostly uses notes and chords from one scale. Build a chord on each note of the major scale and you get a fixed pattern of major and minor — the same in every key:</p>
+    <div class="overflow-x-auto h-scroll mb-4">
+      <table class="w-full text-sm min-w-[480px]">
+        <thead>
+          <tr class="text-left ink-soft text-xs uppercase tracking-wider">
+            <th class="py-2 pr-3">Number</th>
+            <th class="py-2 px-2 amber">I</th><th class="py-2 px-2">ii</th><th class="py-2 px-2">iii</th>
+            <th class="py-2 px-2 amber">IV</th><th class="py-2 px-2 amber">V</th><th class="py-2 px-2">vi</th><th class="py-2 px-2">vii°</th>
+          </tr>
+        </thead>
+        <tbody class="mono">
+          <tr class="border-t" style="border-color: var(--border)">
+            <td class="py-2 pr-3 ink-soft text-xs">Quality</td>
+            <td class="py-2 px-2">maj</td><td class="py-2 px-2">min</td><td class="py-2 px-2">min</td>
+            <td class="py-2 px-2">maj</td><td class="py-2 px-2">maj</td><td class="py-2 px-2">min</td><td class="py-2 px-2">dim</td>
+          </tr>
+          <tr class="border-t" style="border-color: var(--border)">
+            <td class="py-2 pr-3 ink-soft text-xs">Key of G</td>
+            <td class="py-2 px-2 amber font-bold">G</td><td class="py-2 px-2">Am</td><td class="py-2 px-2">Bm</td>
+            <td class="py-2 px-2 amber font-bold">C</td><td class="py-2 px-2 amber font-bold">D</td><td class="py-2 px-2">Em</td><td class="py-2 px-2">F♯°</td>
+          </tr>
+          <tr class="border-t" style="border-color: var(--border)">
+            <td class="py-2 pr-3 ink-soft text-xs">Key of C</td>
+            <td class="py-2 px-2 amber font-bold">C</td><td class="py-2 px-2">Dm</td><td class="py-2 px-2">Em</td>
+            <td class="py-2 px-2 amber font-bold">F</td><td class="py-2 px-2 amber font-bold">G</td><td class="py-2 px-2">Am</td><td class="py-2 px-2">B°</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed">The <span class="text-white font-semibold">I, IV, and V</span> chords (the major ones) are the backbone of folk, blues, and rock. The <span class="text-white font-semibold">vi</span> is the relative minor. Most three- and four-chord songs are just some mix of I–IV–V–vi. Once you hear this, you'll start recognizing it everywhere.</p>
+  </div>
+
+  <!-- 6. Common progressions -->
+  <div class="panel rounded-2xl p-6 mb-5">
+    <div class="flex items-baseline gap-3 mb-3">
+      <div class="mono text-xs amber">06</div>
+      <h3 class="display text-2xl font-bold">The progressions behind everything</h3>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed mb-4">Because the number pattern is the same in every key, songwriters think in numbers. Here are the four you'll meet most — try them in the key of G (use the table above):</p>
+    <div class="space-y-3">
+      <div class="panel-2 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-1 flex-wrap gap-2">
+          <span class="font-semibold">The "four-chord song"</span>
+          <span class="mono text-sm amber">I – V – vi – IV</span>
+        </div>
+        <div class="text-xs ink-soft">In G: G – D – Em – C. Hundreds of pop and rock hits. Wagon Wheel, countless others.</div>
+      </div>
+      <div class="panel-2 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-1 flex-wrap gap-2">
+          <span class="font-semibold">The 12-bar blues</span>
+          <span class="mono text-sm amber">I – IV – V</span>
+        </div>
+        <div class="text-xs ink-soft">In G: G – C – D in a set 12-bar pattern. All of blues and early rock 'n' roll.</div>
+      </div>
+      <div class="panel-2 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-1 flex-wrap gap-2">
+          <span class="font-semibold">The 50s / doo-wop</span>
+          <span class="mono text-sm amber">I – vi – IV – V</span>
+        </div>
+        <div class="text-xs ink-soft">In G: G – Em – C – D. Stand By Me and a thousand slow dances.</div>
+      </div>
+      <div class="panel-2 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-1 flex-wrap gap-2">
+          <span class="font-semibold">The folk turnaround</span>
+          <span class="mono text-sm amber">I – IV – I – V</span>
+        </div>
+        <div class="text-xs ink-soft">In G: G – C – G – D. Traditional folk and country songs everywhere.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Circle of Fifths -->
+  <div class="panel rounded-2xl p-6 mb-5">
+    <div class="flex items-baseline gap-3 mb-3">
+      <div class="mono text-xs amber">07</div>
+      <h3 class="display text-2xl font-bold">The circle of fifths</h3>
+    </div>
+    <p class="text-sm ink-soft leading-relaxed mb-4">Move 7 frets (a perfect 5th) and you land on the next key that's most closely related — it differs by just one sharp or flat. Arrange all 12 keys this way and they form a circle. Neighbors on the circle sound good together; that's why I, IV, and V (which sit next to each other here) are the friendliest chords.</p>
+    <div id="circle-of-fifths" class="flex justify-center mb-4"></div>
+    <p class="text-sm ink-soft leading-relaxed">Practical use: if a song's chords feel like they "belong together," they're probably neighbors on this circle. And if you want to find a song's key, look at which group of neighboring chords it uses.</p>
+  </div>
+
+  <!-- 8. Figuring out songs by ear -->
+  <div class="panel rounded-2xl p-6">
+    <div class="flex items-baseline gap-3 mb-3">
+      <div class="mono text-xs amber">08</div>
+      <h3 class="display text-2xl font-bold">Putting it to work — songs by ear</h3>
+    </div>
+    <ol class="space-y-3 text-sm">
+      <li class="flex gap-3"><span class="mono amber pt-0.5">1.</span><span><span class="font-semibold">Find the key.</span> Play along and find the chord that sounds like "home" — where the song wants to rest. That's the I.</span></li>
+      <li class="flex gap-3"><span class="mono amber pt-0.5">2.</span><span><span class="font-semibold">Try the neighbors.</span> The IV and V (and vi) are almost always next. Use the table — in the key of G, that's C, D, and Em.</span></li>
+      <li class="flex gap-3"><span class="mono amber pt-0.5">3.</span><span><span class="font-semibold">Listen for the pattern.</span> Most songs cycle a 4-chord loop. Once you catch it, the whole song unlocks.</span></li>
+      <li class="flex gap-3"><span class="mono amber pt-0.5">4.</span><span><span class="font-semibold">Use a capo to match.</span> If the singer's too high or low, slap a capo on and keep the same shapes. Theory still applies — you've just moved the whole thing up.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ SCALES ============ -->
+<section id="view-scales" class="view hidden max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-12">
+  <div class="mb-7">
+    <div class="eyebrow mb-2">Soloing</div>
+    <h2 class="section-title display">Scales, the whole neck.</h2>
+    <p class="ink-soft mt-2 max-w-2xl">Pentatonics for quick soloing, full 7-note scales for melody and theory, and the modes. Pick a key, see every note across the fretboard, then drill the five CAGED-position boxes.</p>
+  </div>
+
+  <!-- Scale type selector -->
+  <div class="mb-3">
+    <div class="text-xs font-semibold ink-soft mb-2 uppercase tracking-wider">Scale</div>
+    <div class="flex gap-2 flex-wrap">
+      <button data-scale="minor-pent" onclick="setScale('minor-pent')" class="scale-btn px-4 py-1.5 rounded-full text-sm font-medium panel-2">Minor Pentatonic</button>
+      <button data-scale="major-pent" onclick="setScale('major-pent')" class="scale-btn px-4 py-1.5 rounded-full text-sm font-medium panel-2">Major Pentatonic</button>
+      <button data-scale="blues" onclick="setScale('blues')" class="scale-btn px-4 py-1.5 rounded-full text-sm font-medium panel-2">Blues</button>
+      <button data-scale="major" onclick="setScale('major')" class="scale-btn px-4 py-1.5 rounded-full text-sm font-medium panel-2">Major (full)</button>
+      <button data-scale="minor" onclick="setScale('minor')" class="scale-btn px-4 py-1.5 rounded-full text-sm font-medium panel-2">Natural Minor (full)</button>
+      <button data-scale="dorian" onclick="setScale('dorian')" class="scale-btn px-4 py-1.5 rounded-full text-sm font-medium panel-2">Dorian</button>
+      <button data-scale="mixolydian" onclick="setScale('mixolydian')" class="scale-btn px-4 py-1.5 rounded-full text-sm font-medium panel-2">Mixolydian</button>
+      <button data-scale="harmonic-min" onclick="setScale('harmonic-min')" class="scale-btn px-4 py-1.5 rounded-full text-sm font-medium panel-2">Harmonic Minor</button>
+    </div>
+  </div>
+
+  <!-- Key selector -->
+  <div class="mb-5">
+    <div class="text-xs font-semibold ink-soft mb-2 uppercase tracking-wider">Key (root note)</div>
+    <div id="scale-root-buttons" class="flex gap-1 flex-wrap"></div>
+  </div>
+
+  <!-- Full-neck overview -->
+  <div class="panel rounded-2xl p-5 mb-5">
+    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+      <div>
+        <div id="scale-title" class="display text-xl font-bold"></div>
+        <div id="scale-notes-line" class="text-xs ink-soft mono mt-0.5"></div>
+      </div>
+      <div class="flex gap-3 text-xs items-center">
+        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background: #FF7A5C"></span> Root</span>
+        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background: #46C9B0"></span> Scale note</span>
+      </div>
+    </div>
+    <div class="text-xs ink-soft mb-2">Full neck — every place the scale lives, frets 0–15. Tap a note to hear it.</div>
+    <div id="scale-fullneck" class="overflow-x-auto h-scroll"></div>
+  </div>
+
+  <!-- CAGED position boxes -->
+  <div class="mb-3 flex items-center justify-between flex-wrap gap-2">
+    <div class="eyebrow">The five positions (CAGED boxes)</div>
+    <div class="text-xs ink-soft">Learn Box 1 first, then connect outward</div>
+  </div>
+  <div id="scales-grid" class="space-y-5"></div>
+
+  <div class="panel rounded-2xl p-6 mt-8">
+    <div class="eyebrow mb-3">How to use this page</div>
+    <p class="text-sm ink-soft leading-relaxed mb-3">
+      <span class="font-semibold text-white">For soloing:</span> start with the minor pentatonic, Box 1. Five notes, hard to play wrong. Memorize that shape, then add boxes outward.
+    </p>
+    <p class="text-sm ink-soft leading-relaxed mb-3">
+      <span class="font-semibold text-white">For melodies & understanding:</span> switch to the full Major or Natural Minor scale. These seven notes are what songs are actually built from — the pentatonic is just these with two notes removed.
+    </p>
+    <p class="text-sm ink-soft leading-relaxed">
+      <span class="font-semibold text-white">The modes</span> (Dorian, Mixolydian) are the same seven notes as a major scale started from a different point — they give different flavors. Dorian is the jazzy/folk minor sound; Mixolydian is the bluesy major sound.
+    </p>
+  </div>
+</section>
+
+<!-- ============ FINDER ============ -->
+<section id="view-finder" class="view hidden max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-12">
+  <div class="mb-7">
+    <div class="eyebrow mb-2">Workbench</div>
+    <h2 class="section-title display">Find any chord, any scale.</h2>
+    <p class="ink-soft mt-2 max-w-2xl">Pick a tuning. Pick a chord or scale. See where every note lives on the neck — frets 0 to 15, all six strings.</p>
+  </div>
+
+  <!-- Controls -->
+  <div class="panel rounded-2xl p-5 mb-5">
+    <div class="flex gap-2 panel-2 rounded-full p-1 mb-5 w-fit text-sm">
+      <button data-fmode="chord" onclick="setFinderMode('chord')" class="fmode-btn px-5 py-1.5 rounded-full font-medium">Chord</button>
+      <button data-fmode="scale" onclick="setFinderMode('scale')" class="fmode-btn px-5 py-1.5 rounded-full font-medium">Scale</button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+      <div>
+        <label class="text-xs font-semibold ink-soft mb-2 block uppercase tracking-wider">Tuning</label>
+        <select id="finder-tuning" onchange="renderFinder()" class="w-full panel-2 rounded-xl px-3 py-2.5 text-sm border focus:border-amber-500 focus:outline-none" style="border-color: var(--border); color: var(--ink);"></select>
+        <div id="finder-tuning-strings" class="text-[10px] mono ink-soft mt-1.5"></div>
+      </div>
+      <div>
+        <label class="text-xs font-semibold ink-soft mb-2 block uppercase tracking-wider">Root note</label>
+        <div id="finder-root-buttons" class="grid grid-cols-6 gap-1"></div>
+      </div>
+      <div>
+        <label id="finder-type-label" class="text-xs font-semibold ink-soft mb-2 block uppercase tracking-wider">Quality</label>
+        <select id="finder-type" onchange="renderFinder()" class="w-full panel-2 rounded-xl px-3 py-2.5 text-sm border focus:border-amber-500 focus:outline-none" style="border-color: var(--border); color: var(--ink);"></select>
+      </div>
+    </div>
+
+    <div class="flex items-end gap-4 flex-wrap pt-4 border-t" style="border-color: var(--border);">
+      <div>
+        <div class="eyebrow mb-1">Now showing</div>
+        <div id="finder-title" class="display text-3xl font-bold"></div>
+      </div>
+      <div class="ml-auto text-xs ink-soft">
+        <div class="flex gap-3 items-center">
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background: #FF7A5C"></span> Root</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background: #46C9B0"></span> Other notes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fretboard -->
+  <div class="panel rounded-2xl p-5 mb-5">
+    <div id="finder-fretboard" class="overflow-x-auto h-scroll"></div>
+  </div>
+
+  <!-- Theory info -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="panel rounded-2xl p-5">
+      <div class="eyebrow mb-3">The Recipe</div>
+      <div id="finder-formula" class="text-sm leading-relaxed"></div>
+    </div>
+    <div class="panel rounded-2xl p-5">
+      <div class="eyebrow mb-3">Notes used</div>
+      <div id="finder-notes-list" class="flex flex-wrap gap-2"></div>
+      <div id="finder-help" class="mt-4 text-xs ink-soft leading-relaxed"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SONGS ============ -->
+<section id="view-songs" class="view hidden max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-12">
+  <div class="mb-7">
+    <div class="eyebrow mb-2">Song Library</div>
+    <h2 class="section-title display">Songs you both know.</h2>
+    <p class="ink-soft mt-2">Chord progressions, key, capo, tempo, strumming. <span id="song-count" class="amber font-semibold"></span></p>
+  </div>
+  <div class="mb-5 relative">
+    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 ink-soft text-sm"></i>
+    <input id="song-search" type="search" placeholder="Search by title, artist, chord, or key…" 
+           oninput="renderSongs()" 
+           class="w-full pl-11 pr-4 py-3 panel rounded-2xl text-sm focus:outline-none focus:border-amber-500 transition-colors" 
+           style="background: var(--panel); border: 1px solid var(--border); color: var(--ink);">
+  </div>
+  <div class="flex gap-2 panel-2 rounded-full p-1 mb-6 w-fit text-sm flex-wrap">
+    <button data-genre="all" onclick="filterSongs('all')" class="genre-btn px-4 py-1.5 rounded-full font-medium">All</button>
+    <button data-genre="folk" onclick="filterSongs('folk')" class="genre-btn px-4 py-1.5 rounded-full font-medium">Folk</button>
+    <button data-genre="classic-rock" onclick="filterSongs('classic-rock')" class="genre-btn px-4 py-1.5 rounded-full font-medium">Classic Rock</button>
+    <button data-genre="country" onclick="filterSongs('country')" class="genre-btn px-4 py-1.5 rounded-full font-medium">Country</button>
+    <button data-genre="blues" onclick="filterSongs('blues')" class="genre-btn px-4 py-1.5 rounded-full font-medium">Blues</button>
+    <button data-genre="variety" onclick="filterSongs('variety')" class="genre-btn px-4 py-1.5 rounded-full font-medium">Variety</button>
+  </div>
+  <div id="songs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  <div id="songs-empty" class="hidden text-center py-12 ink-soft">
+    <i class="fa-solid fa-magnifying-glass text-3xl mb-3 opacity-50"></i>
+    <p class="text-sm">No songs match. Try a different chord, key, or artist name.</p>
+  </div>
+</section>
+
+<!-- ============ TOOLS ============ -->
+<section id="view-tools" class="view hidden max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-12">
+  <div class="mb-7">
+    <div class="eyebrow mb-2">Practice</div>
+    <h2 class="section-title display">Tools that actually help.</h2>
+    <p class="ink-soft mt-2">Metronome, chord player, and tuner reference tones.</p>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <!-- Metronome -->
+    <div class="panel rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <div class="eyebrow">Metronome</div>
+          <h3 class="display text-2xl font-bold">Keep time.</h3>
+        </div>
+        <div id="bpm-display" class="display text-6xl font-bold amber mono">80</div>
+      </div>
+      <input id="bpm-slider" type="range" min="40" max="200" value="80" class="w-full mb-1">
+      <div class="flex justify-between text-xs ink-soft mb-5"><span>40</span><span>200 BPM</span></div>
+      <div class="flex gap-2 mb-4">
+        <button onclick="setBpm(-5)" class="px-4 py-2 panel-2 rounded-full text-sm font-medium">−5</button>
+        <button onclick="setBpm(-1)" class="px-4 py-2 panel-2 rounded-full text-sm font-medium">−1</button>
+        <button onclick="setBpm(1)" class="px-4 py-2 panel-2 rounded-full text-sm font-medium">+1</button>
+        <button onclick="setBpm(5)" class="px-4 py-2 panel-2 rounded-full text-sm font-medium">+5</button>
+        <button onclick="tapTempo()" class="ml-auto px-4 py-2 panel-2 rounded-full text-sm font-medium"><i class="fa-solid fa-hand-pointer"></i> Tap</button>
+      </div>
+      <button id="metro-btn" onclick="toggleMetronome()" class="w-full py-3.5 rounded-full font-semibold text-lg flex items-center justify-center gap-2" style="background: var(--moss); color: #12151C;">
+        <i class="fa-solid fa-play" id="metro-icon"></i> <span id="metro-text">Start</span>
+      </button>
+      <div class="mt-5 flex items-center justify-center gap-2">
+        <div class="beat-dot w-3 h-3 rounded-full bg-gray-700"></div>
+        <div class="beat-dot w-3 h-3 rounded-full bg-gray-700"></div>
+        <div class="beat-dot w-3 h-3 rounded-full bg-gray-700"></div>
+        <div class="beat-dot w-3 h-3 rounded-full bg-gray-700"></div>
+      </div>
+    </div>
+
+    <!-- Tuner -->
+    <div class="panel rounded-2xl p-6">
+      <div class="mb-5">
+        <div class="eyebrow">Tuning Reference</div>
+        <h3 class="display text-2xl font-bold">Standard tuning.</h3>
+        <p class="text-sm ink-soft mt-1">Tap a string to play the reference tone. Match by ear.</p>
+      </div>
+      <div class="grid grid-cols-6 gap-2">
+        <button onclick="playTone('E2')" class="panel-2 rounded-xl p-3 hover:border-amber-500 transition-colors">
+          <div class="display text-2xl font-bold">E</div>
+          <div class="text-[10px] ink-soft mono">6th · low</div>
+        </button>
+        <button onclick="playTone('A2')" class="panel-2 rounded-xl p-3 hover:border-amber-500 transition-colors">
+          <div class="display text-2xl font-bold">A</div>
+          <div class="text-[10px] ink-soft mono">5th</div>
+        </button>
+        <button onclick="playTone('D3')" class="panel-2 rounded-xl p-3 hover:border-amber-500 transition-colors">
+          <div class="display text-2xl font-bold">D</div>
+          <div class="text-[10px] ink-soft mono">4th</div>
+        </button>
+        <button onclick="playTone('G3')" class="panel-2 rounded-xl p-3 hover:border-amber-500 transition-colors">
+          <div class="display text-2xl font-bold">G</div>
+          <div class="text-[10px] ink-soft mono">3rd</div>
+        </button>
+        <button onclick="playTone('B3')" class="panel-2 rounded-xl p-3 hover:border-amber-500 transition-colors">
+          <div class="display text-2xl font-bold">B</div>
+          <div class="text-[10px] ink-soft mono">2nd</div>
+        </button>
+        <button onclick="playTone('E4')" class="panel-2 rounded-xl p-3 hover:border-amber-500 transition-colors">
+          <div class="display text-2xl font-bold">E</div>
+          <div class="text-[10px] ink-soft mono">1st · high</div>
+        </button>
+      </div>
+      <div class="mt-5 pt-5 border-t border-gray-800">
+        <div class="text-xs ink-soft mb-2">Mnemonic for string names (low to high):</div>
+        <div class="text-sm font-medium">"<span class="amber">E</span>ddie <span class="amber">A</span>te <span class="amber">D</span>ynamite — <span class="amber">G</span>ood <span class="amber">B</span>ye <span class="amber">E</span>ddie."</div>
+      </div>
+    </div>
+
+    <!-- Chord Player -->
+    <div class="panel rounded-2xl p-6 lg:col-span-2">
+      <div class="mb-4">
+        <div class="eyebrow">Chord Player</div>
+        <h3 class="display text-2xl font-bold">Hear any chord.</h3>
+      </div>
+      <div id="chord-pad" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2"></div>
+    </div>
+
+    <!-- Full Fretboard Explorer -->
+    <div class="panel rounded-2xl p-6 lg:col-span-2">
+      <div class="flex items-start justify-between mb-4 flex-wrap gap-3">
+        <div>
+          <div class="eyebrow">Fretboard Explorer</div>
+          <h3 class="display text-2xl font-bold">Learn the whole neck.</h3>
+          <p class="text-sm ink-soft mt-1">Every note, all 6 strings, frets 0–15. Tap a note name to light it up everywhere. Tap a fret to hear it.</p>
+        </div>
+      </div>
+
+      <!-- Note name selector -->
+      <div class="mb-4">
+        <div class="text-xs font-semibold ink-soft mb-2 uppercase tracking-wider">Highlight a note across the neck</div>
+        <div id="fb-note-buttons" class="flex flex-wrap gap-1.5"></div>
+      </div>
+
+      <!-- Options -->
+      <div class="flex items-center gap-4 mb-4 flex-wrap text-sm">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="fb-show-all" onchange="renderToolFretboard()" class="w-4 h-4 accent-amber-500">
+          <span class="ink-soft">Show all note names</span>
+        </label>
+        <div class="flex items-center gap-2">
+          <span class="ink-soft text-xs">Tuning:</span>
+          <select id="fb-tuning" onchange="renderToolFretboard()" class="panel-2 rounded-lg px-2 py-1 text-xs border focus:border-amber-500 focus:outline-none" style="border-color: var(--border); color: var(--ink);"></select>
+        </div>
+      </div>
+
+      <!-- Fretboard -->
+      <div id="tool-fretboard" class="overflow-x-auto h-scroll"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHORD MODAL ============ -->
+<div id="chord-modal" class="hidden fixed inset-0 z-50 modal-backdrop items-center justify-center p-4" onclick="if(event.target.id==='chord-modal') closeModals()">
+  <div class="modal-card panel rounded-3xl p-6 max-w-md w-full">
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <div id="cm-name" class="display text-4xl font-bold"></div>
+        <div id="cm-quality" class="text-sm ink-soft"></div>
+      </div>
+      <button onclick="closeModals()" class="text-3xl ink-soft hover:text-white leading-none">×</button>
+    </div>
+    <div id="cm-diagram" class="flex justify-center mb-4"></div>
+    <div id="cm-notes" class="text-center mono text-sm ink-soft mb-4"></div>
+    <button id="cm-play" class="w-full py-3 rounded-full font-semibold" style="background: var(--amber); color: #12151C"><i class="fa-solid fa-play mr-2"></i>Play chord</button>
+  </div>
+</div>
+
+<!-- ============ LESSON MODAL ============ -->
+<div id="lesson-modal" class="hidden fixed inset-0 z-50 modal-backdrop items-center justify-center p-4" onclick="if(event.target.id==='lesson-modal') closeModals()">
+  <div class="modal-card panel rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="p-6 border-b border-gray-800 flex items-start justify-between">
+      <div>
+        <div id="lm-eyebrow" class="eyebrow mb-1"></div>
+        <h3 id="lm-title" class="display text-3xl font-bold"></h3>
+        <p id="lm-desc" class="text-sm ink-soft mt-2"></p>
+      </div>
+      <button onclick="closeModals()" class="text-3xl ink-soft hover:text-white leading-none">×</button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-6">
+      <div class="text-sm font-semibold mb-3">Steps</div>
+      <div id="lm-steps" class="space-y-2"></div>
+      <div id="lm-chords-wrap" class="hidden mt-6">
+        <div class="text-sm font-semibold mb-3">Chords in this lesson</div>
+        <div id="lm-chords" class="flex flex-wrap gap-3"></div>
+      </div>
+      <div id="lm-songs-wrap" class="hidden mt-6">
+        <div class="text-sm font-semibold mb-1">Practice with these songs</div>
+        <div class="text-xs ink-soft mb-3">Real songs that use exactly what this lesson teaches. Tap to open the chart.</div>
+        <div id="lm-songs" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SONG MODAL ============ -->
+<div id="song-modal" class="hidden fixed inset-0 z-50 modal-backdrop items-center justify-center p-4" onclick="if(event.target.id==='song-modal') closeModals()">
+  <div class="modal-card panel rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="p-6 border-b border-gray-800 flex items-start justify-between gap-4">
+      <div class="min-w-0">
+        <div id="sm-artist" class="eyebrow mb-1 truncate"></div>
+        <h3 id="sm-title" class="display text-2xl sm:text-3xl font-bold leading-tight"></h3>
+        <div class="flex flex-wrap gap-2 mt-3 text-xs">
+          <span id="sm-key" class="px-2 py-1 panel-2 rounded mono"></span>
+          <span id="sm-capo" class="px-2 py-1 panel-2 rounded mono"></span>
+          <span id="sm-bpm" class="px-2 py-1 panel-2 rounded mono"></span>
+          <span id="sm-difficulty" class="px-2 py-1 panel-2 rounded"></span>
+        </div>
+      </div>
+      <button onclick="closeModals()" class="text-3xl ink-soft hover:text-white leading-none flex-shrink-0">×</button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+      <div>
+        <div class="text-sm font-semibold mb-3">Chords used</div>
+        <div id="sm-chords" class="flex gap-3 overflow-x-auto h-scroll pb-2"></div>
+      </div>
+      <div>
+        <div class="text-sm font-semibold mb-2">Strumming</div>
+        <div id="sm-strum" class="text-sm ink-soft"></div>
+      </div>
+      <div>
+        <div class="text-sm font-semibold mb-3">Structure</div>
+        <div id="sm-sections" class="space-y-3"></div>
+      </div>
+      <div id="sm-riff-wrap" class="hidden">
+        <div class="text-sm font-semibold mb-2">Signature riff <span class="text-xs ink-soft font-normal">— a few bars to study</span></div>
+        <pre id="sm-riff" class="panel-2 rounded-xl p-4 text-xs mono overflow-x-auto"></pre>
+      </div>
+      <div id="sm-notes" class="text-sm ink-soft leading-relaxed border-t border-gray-800 pt-4"></div>
+      <div class="flex flex-wrap gap-2 pt-2">
+        <a id="sm-ug-link" href="#" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold" style="background: var(--amber); color: var(--bg);">
+          <i class="fa-solid fa-guitar"></i> Open tab on Ultimate Guitar
+        </a>
+        <a id="sm-yt-link" href="#" target="_blank" rel="noopener" class="flex items-center gap-2 px-4 py-2.5 panel-2 rounded-full text-sm font-medium hover:border-amber-500 transition-colors">
+          <i class="fa-brands fa-youtube"></i> Listen on YouTube
+        </a>
+      </div>
+      <div class="text-[11px] ink-soft">Opens a search on Ultimate Guitar — sign in there to see full tabs and lyrics.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BOTTOM NAV (mobile) ============ -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 panel border-t border-gray-800 z-30 bottom-nav no-print">
+  <div class="grid grid-cols-6 text-xs">
+    <button data-nav="home" onclick="show('home')" class="nav-btn flex flex-col items-center gap-1 py-2.5 ink-soft"><i class="fa-solid fa-house"></i>Home</button>
+    <button data-nav="lessons" onclick="show('lessons')" class="nav-btn flex flex-col items-center gap-1 py-2.5 ink-soft"><i class="fa-solid fa-graduation-cap"></i>Lessons</button>
+    <button data-nav="chords" onclick="show('chords')" class="nav-btn flex flex-col items-center gap-1 py-2.5 ink-soft"><i class="fa-solid fa-hand-spock"></i>Chords</button>
+    <button data-nav="finder" onclick="show('finder')" class="nav-btn flex flex-col items-center gap-1 py-2.5 ink-soft"><i class="fa-solid fa-magnifying-glass"></i>Finder</button>
+    <button data-nav="songs" onclick="show('songs')" class="nav-btn flex flex-col items-center gap-1 py-2.5 ink-soft"><i class="fa-solid fa-music"></i>Songs</button>
+    <button data-nav="tools" onclick="show('tools')" class="nav-btn flex flex-col items-center gap-1 py-2.5 ink-soft"><i class="fa-solid fa-sliders"></i>Tools</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+
+// Chord data — positions are [low E, A, D, G, B, high E]
+// -1 = mute, 0 = open, n = fret. fingers correspond to positions.
+// startFret: starting fret for diagrams that go past fret 4 (default 0 = nut)
+const CHORDS = {
+  // Open majors
+  'C':      { quality: 'major', pos: [-1,3,2,0,1,0], fin: [0,3,2,0,1,0], notes: ['C','E','G'] },
+  'A':      { quality: 'major', pos: [-1,0,2,2,2,0], fin: [0,0,1,2,3,0], notes: ['A','C#','E'] },
+  'G':      { quality: 'major', pos: [3,2,0,0,0,3], fin: [3,2,0,0,0,4], notes: ['G','B','D'] },
+  'E':      { quality: 'major', pos: [0,2,2,1,0,0], fin: [0,2,3,1,0,0], notes: ['E','G#','B'] },
+  'D':      { quality: 'major', pos: [-1,-1,0,2,3,2], fin: [0,0,0,1,3,2], notes: ['D','F#','A'] },
+  // Minors
+  'Am':     { quality: 'minor', pos: [-1,0,2,2,1,0], fin: [0,0,2,3,1,0], notes: ['A','C','E'] },
+  'Em':     { quality: 'minor', pos: [0,2,2,0,0,0], fin: [0,2,3,0,0,0], notes: ['E','G','B'] },
+  'Dm':     { quality: 'minor', pos: [-1,-1,0,2,3,1], fin: [0,0,0,2,3,1], notes: ['D','F','A'] },
+  // 7ths
+  'G7':     { quality: 'dom7',  pos: [3,2,0,0,0,1], fin: [3,2,0,0,0,1], notes: ['G','B','D','F'] },
+  'D7':     { quality: 'dom7',  pos: [-1,-1,0,2,1,2], fin: [0,0,0,2,1,3], notes: ['D','F#','A','C'] },
+  'A7':     { quality: 'dom7',  pos: [-1,0,2,0,2,0], fin: [0,0,2,0,3,0], notes: ['A','C#','E','G'] },
+  'E7':     { quality: 'dom7',  pos: [0,2,0,1,0,0], fin: [0,2,0,1,0,0], notes: ['E','G#','B','D'] },
+  'C7':     { quality: 'dom7',  pos: [-1,3,2,3,1,0], fin: [0,3,2,4,1,0], notes: ['C','E','G','Bb'] },
+  'B7':     { quality: 'dom7',  pos: [-1,2,1,2,0,2], fin: [0,2,1,3,0,4], notes: ['B','D#','F#','A'] },
+  'Em7':    { quality: 'min7',  pos: [0,2,2,0,3,0], fin: [0,2,3,0,4,0], notes: ['E','G','B','D'] },
+  'Am7':    { quality: 'min7',  pos: [-1,0,2,0,1,0], fin: [0,0,2,0,1,0], notes: ['A','C','E','G'] },
+  'Dm7':    { quality: 'min7',  pos: [-1,-1,0,2,1,1], fin: [0,0,0,2,1,1], notes: ['D','F','A','C'] },
+  // Sus & add
+  'Cadd9':  { quality: 'add9',  pos: [-1,3,2,0,3,0], fin: [0,2,1,0,3,0], notes: ['C','E','G','D'] },
+  'Dsus4':  { quality: 'sus4',  pos: [-1,-1,0,2,3,3], fin: [0,0,0,1,2,3], notes: ['D','G','A'] },
+  'Dsus2':  { quality: 'sus2',  pos: [-1,-1,0,2,3,0], fin: [0,0,0,1,2,0], notes: ['D','E','A'] },
+  'Asus2':  { quality: 'sus2',  pos: [-1,0,2,2,0,0], fin: [0,0,1,2,0,0], notes: ['A','B','E'] },
+  'Asus4':  { quality: 'sus4',  pos: [-1,0,2,2,3,0], fin: [0,0,1,2,3,0], notes: ['A','D','E'] },
+  'A7sus4': { quality: 'sus4',  pos: [-1,0,2,0,3,0], fin: [0,0,1,0,3,0], notes: ['A','D','E','G'] },
+  // Barres
+  'F':      { quality: 'major', pos: [1,3,3,2,1,1], fin: [1,3,4,2,1,1], barre: { fret: 1, from: 0, to: 5 }, notes: ['F','A','C'] },
+  'Bm':     { quality: 'minor', pos: [-1,2,4,4,3,2], fin: [0,1,3,4,2,1], barre: { fret: 2, from: 1, to: 5 }, notes: ['B','D','F#'] },
+  'F#m':    { quality: 'minor', pos: [2,4,4,2,2,2], fin: [1,3,4,1,1,1], barre: { fret: 2, from: 0, to: 5 }, notes: ['F#','A','C#'] },
+  'Bb':     { quality: 'major', pos: [-1,1,3,3,3,1], fin: [0,1,2,3,4,1], barre: { fret: 1, from: 1, to: 5 }, notes: ['Bb','D','F'] },
+  'B':      { quality: 'major', pos: [-1,2,4,4,4,2], fin: [0,1,3,4,2,1], barre: { fret: 2, from: 1, to: 5 }, notes: ['B','D#','F#'] },
+  'F#':     { quality: 'major', pos: [2,4,4,3,2,2], fin: [1,3,4,2,1,1], barre: { fret: 2, from: 0, to: 5 }, notes: ['F#','A#','C#'] },
+  'Gm':     { quality: 'minor', pos: [3,5,5,3,3,3], fin: [1,3,4,1,1,1], barre: { fret: 3, from: 0, to: 5 }, notes: ['G','Bb','D'] },
+  'Eb':     { quality: 'major', pos: [-1,6,8,8,8,6], fin: [0,1,3,4,2,1], barre: { fret: 6, from: 1, to: 5 }, notes: ['Eb','G','Bb'] },
+  'C#':     { quality: 'major', pos: [-1,4,6,6,6,4], fin: [0,1,3,4,2,1], barre: { fret: 4, from: 1, to: 5 }, notes: ['C#','E#','G#'] },
+  'C#m':    { quality: 'minor', pos: [-1,4,6,6,5,4], fin: [0,1,3,4,2,1], barre: { fret: 4, from: 1, to: 5 }, notes: ['C#','E','G#'] },
+  'Cm':     { quality: 'minor', pos: [-1,3,5,5,4,3], fin: [0,1,3,4,2,1], barre: { fret: 3, from: 1, to: 5 }, notes: ['C','Eb','G'] },
+  'Cmaj7':  { quality: 'maj7',  pos: [-1,3,2,0,0,0], fin: [0,3,2,0,0,0], notes: ['C','E','G','B'] },
+  'Fmaj7':  { quality: 'maj7',  pos: [-1,-1,3,2,1,0], fin: [0,0,3,2,1,0], notes: ['F','A','C','E'] },
+  'Gmaj7':  { quality: 'maj7',  pos: [3,2,0,0,0,2], fin: [3,2,0,0,0,1], notes: ['G','B','D','F#'] },
+  'F#7':    { quality: 'dom7',  pos: [2,4,2,3,2,2], fin: [1,3,1,2,1,1], barre: { fret: 2, from: 0, to: 5 }, notes: ['F#','A#','C#','E'] },
+  'Dadd9':  { quality: 'add9',  pos: [-1,-1,0,2,3,0], fin: [0,0,0,1,2,0], notes: ['D','A','E','F#'] }
+};
+
+// CAGED shapes — shown as movable major barre forms (starting fret left flexible)
+const CAGED_SHAPES = [
+  { name: 'C shape', label: 'C', rootString: 'A (5th)', desc: 'Open C, played higher up. Root on the A string. Tricky stretch.',
+    pos: [-1,3,5,5,5,3], fin: [0,1,3,4,2,1], startFret: 3 },
+  { name: 'A shape', label: 'A', rootString: 'A (5th)', desc: 'Barre across, A-shape fingers above. Most common barre.',
+    pos: [-1,3,5,5,5,3], fin: [0,1,3,4,2,1], startFret: 3 },
+  { name: 'G shape', label: 'G', rootString: 'low E (6th)', desc: 'The hardest CAGED shape. Spans 4 frets. Often partial.',
+    pos: [3,2,0,0,3,3], fin: [2,1,0,0,3,4], startFret: 0, isOpen: true },
+  { name: 'E shape', label: 'E', rootString: 'low E (6th)', desc: 'Standard barre chord. Workhorse of rock. Root on low E.',
+    pos: [1,3,3,2,1,1], fin: [1,3,4,2,1,1], startFret: 1, barre: { fret: 1, from: 0, to: 5 } },
+  { name: 'D shape', label: 'D', rootString: 'D (4th)', desc: 'Smaller voicing, top four strings only. Bright sound.',
+    pos: [-1,-1,0,2,3,2], fin: [0,0,0,1,3,2], startFret: 0, isOpen: true }
+];
+
+// SCALES — A root, frets where each note sits on each string [low E, A, D, G, B, high E]
+// Notes only the dots that fall within each "box"
+const SCALES = {
+  'minor-pent': {
+    name: 'A Minor Pentatonic',
+    desc: 'A, C, D, E, G. The scale behind most rock solos.',
+    boxes: [
+      { name: 'Box 1', cagedShape: 'E shape', startFret: 5, dots: [
+        [5,'A','root'],[5,'D'],[5,'G'],[5,'C'],[5,'E'],[5,'A','root'],
+        [8,'C'],[7,'E'],[7,'A','root'],[7,'D'],[8,'G'],[8,'C']
+      ], stringDots: [
+        // [string (0=lowE), fret, note, isRoot]
+        [0,5,'A',true],[0,8,'C',false],
+        [1,5,'D',false],[1,7,'E',false],
+        [2,5,'G',false],[2,7,'A',true],
+        [3,5,'C',false],[3,7,'D',false],
+        [4,5,'E',false],[4,8,'G',false],
+        [5,5,'A',true],[5,8,'C',false]
+      ]},
+      { name: 'Box 2', cagedShape: 'D shape', startFret: 7, stringDots: [
+        [0,8,'C',false],[0,10,'D',false],
+        [1,7,'E',false],[1,10,'G',false],
+        [2,7,'A',true],[2,10,'C',false],
+        [3,7,'D',false],[3,9,'E',false],
+        [4,8,'G',false],[4,10,'A',true],
+        [5,8,'C',false],[5,10,'D',false]
+      ]},
+      { name: 'Box 3', cagedShape: 'C shape', startFret: 9, stringDots: [
+        [0,10,'D',false],[0,12,'E',false],
+        [1,10,'G',false],[1,12,'A',true],
+        [2,10,'C',false],[2,12,'D',false],
+        [3,9,'E',false],[3,12,'G',false],
+        [4,10,'A',true],[4,13,'C',false],
+        [5,10,'D',false],[5,12,'E',false]
+      ]},
+      { name: 'Box 4', cagedShape: 'A shape', startFret: 12, stringDots: [
+        [0,12,'E',false],[0,15,'G',false],
+        [1,12,'A',true],[1,15,'C',false],
+        [2,12,'D',false],[2,14,'E',false],
+        [3,12,'G',false],[3,14,'A',true],
+        [4,13,'C',false],[4,15,'D',false],
+        [5,12,'E',false],[5,15,'G',false]
+      ]},
+      { name: 'Box 5', cagedShape: 'G shape', startFret: 14, stringDots: [
+        [0,15,'G',false],[0,17,'A',true],
+        [1,15,'C',false],[1,17,'D',false],
+        [2,14,'E',false],[2,17,'G',false],
+        [3,14,'A',true],[3,17,'C',false],
+        [4,15,'D',false],[4,17,'E',false],
+        [5,15,'G',false],[5,17,'A',true]
+      ]}
+    ]
+  },
+  'major-pent': {
+    name: 'A Major Pentatonic',
+    desc: 'A, B, C#, E, F#. Bright, country/folk sound. Shapes shifted down 3 frets from minor pentatonic.',
+    boxes: [
+      { name: 'Box 1', cagedShape: 'E shape', startFret: 2, stringDots: [
+        [0,2,'F#',false],[0,5,'A',true],
+        [1,2,'B',false],[1,4,'C#',false],
+        [2,2,'E',false],[2,4,'F#',false],
+        [3,2,'A',true],[3,4,'B',false],
+        [4,2,'C#',false],[4,5,'E',false],
+        [5,2,'F#',false],[5,5,'A',true]
+      ]},
+      { name: 'Box 2', cagedShape: 'D shape', startFret: 4, stringDots: [
+        [0,5,'A',true],[0,7,'B',false],
+        [1,4,'C#',false],[1,7,'E',false],
+        [2,4,'F#',false],[2,7,'A',true],
+        [3,4,'B',false],[3,6,'C#',false],
+        [4,5,'E',false],[4,7,'F#',false],
+        [5,5,'A',true],[5,7,'B',false]
+      ]},
+      { name: 'Box 3', cagedShape: 'C shape', startFret: 6, stringDots: [
+        [0,7,'B',false],[0,9,'C#',false],
+        [1,7,'E',false],[1,9,'F#',false],
+        [2,7,'A',true],[2,9,'B',false],
+        [3,6,'C#',false],[3,9,'E',false],
+        [4,7,'F#',false],[4,9,'A',true],
+        [5,7,'B',false],[5,9,'C#',false]
+      ]},
+      { name: 'Box 4', cagedShape: 'A shape', startFret: 9, stringDots: [
+        [0,9,'C#',false],[0,12,'E',false],
+        [1,9,'F#',false],[1,12,'A',true],
+        [2,9,'B',false],[2,11,'C#',false],
+        [3,9,'E',false],[3,11,'F#',false],
+        [4,9,'A',true],[4,12,'B',false],
+        [5,9,'C#',false],[5,12,'E',false]
+      ]},
+      { name: 'Box 5', cagedShape: 'G shape', startFret: 11, stringDots: [
+        [0,12,'E',false],[0,14,'F#',false],
+        [1,12,'A',true],[1,14,'B',false],
+        [2,11,'C#',false],[2,14,'E',false],
+        [3,11,'F#',false],[3,14,'A',true],
+        [4,12,'B',false],[4,14,'C#',false],
+        [5,12,'E',false],[5,14,'F#',false]
+      ]}
+    ]
+  },
+  'blues': {
+    name: 'A Blues Scale',
+    desc: 'Minor pentatonic + the "blue note" (Eb). The grit in every blues solo.',
+    boxes: [
+      { name: 'Box 1', cagedShape: 'E shape', startFret: 5, stringDots: [
+        [0,5,'A',true],[0,8,'C',false],
+        [1,5,'D',false],[1,6,'Eb',false],[1,7,'E',false],
+        [2,5,'G',false],[2,7,'A',true],
+        [3,5,'C',false],[3,7,'D',false],[3,8,'Eb',false],
+        [4,5,'E',false],[4,8,'G',false],
+        [5,5,'A',true],[5,8,'C',false]
+      ]}
+    ]
+  }
+};
+
+// LESSONS
+const LESSONS = [
+  { id: 'l1', num: '01', level: 'Day 1', duration: '5 min', title: 'Hold &amp; tune', desc: 'How to sit, how the guitar should rest on your leg, and how to tune up.',
+    steps: [
+      { t: 'Sit, don\'t slump.', d: 'Both feet flat. Guitar on your right leg (right-handed). The neck angles up at about 15°.' },
+      { t: 'Right hand floats.', d: 'Your right forearm rests on the top edge of the body. Your strumming hand should hang loose, not braced.' },
+      { t: 'Left thumb behind.', d: 'Thumb pad on the back of the neck, roughly behind your 2nd finger. Not over the top.' },
+      { t: 'Tune the six strings.', d: 'Open the Tools page. Tap each string tone (E, A, D, G, B, E low to high) and match by ear. Or use a tuner app on the phone.' }
+    ] },
+  { id: 'l2', num: '02', level: 'Day 1', duration: '4 min', title: 'Read a chord chart', desc: 'How to read every diagram in this app.',
+    steps: [
+      { t: 'Six strings, drawn vertically.', d: 'Left line = low E (thickest string). Right line = high E (thinnest).' },
+      { t: 'Frets cross horizontally.', d: 'The thick top line is the nut (fret 0). Below it: fret 1, fret 2, and so on.' },
+      { t: 'Dots = where your fingers go.', d: 'The number inside the dot is which finger to use. 1=index, 2=middle, 3=ring, 4=pinky.' },
+      { t: 'Above the chart.', d: 'O = play the string open. X = don\'t play that string at all.' }
+    ] },
+  { id: 'l3', num: '03', level: 'Day 2', duration: '8 min', title: 'First three chords', desc: 'Em, Am, D. Almost every song uses at least two of these.',
+    chords: ['Em','Am','D'],
+    songs: ['horse-no-name','three-little-birds'],
+    steps: [
+      { t: 'Em first — easiest chord on guitar.', d: '2nd finger on A string fret 2. 3rd finger on D string fret 2. Strum all six strings.' },
+      { t: 'Am next.', d: '1st finger on B string fret 1. 2nd finger on D string fret 2. 3rd finger on G string fret 2. Strum from the A string down (skip low E).' },
+      { t: 'D last — trickiest of the three.', d: 'Strings 4, 3, 2 (D, G, B). Index on G string fret 2, middle on high E fret 2, ring on B string fret 3. Strum only the top four strings.' },
+      { t: 'Switch slowly.', d: 'Em → Am → D → Am → Em. Don\'t worry about speed for a week. Clean and slow wins.' }
+    ] },
+  { id: 'l4', num: '04', level: 'Day 4', duration: '8 min', title: 'Add G, C, F-shape', desc: 'These three open up most of the song library.',
+    chords: ['G','C'],
+    songs: ['knockin','blowin-wind','country-roads','this-land'],
+    steps: [
+      { t: 'G major (most-used chord in folk).', d: '2nd finger on low E fret 3, 1st finger on A string fret 2, 3rd/4th finger on high E fret 3. Strum all six.' },
+      { t: 'C major.', d: '3rd finger on A string fret 3, 2nd finger on D string fret 2, 1st finger on B string fret 1. Strum from A string down.' },
+      { t: 'Practice the G ↔ C switch.', d: 'This is the most common change in folk and rock. Drill it slowly for 5 minutes. The 2nd and 3rd fingers stay roughly anchored.' },
+      { t: 'F major (the wall).', d: 'F is the first barre chord. It\'s hard. Don\'t expect it to ring clean for weeks. Most beginners use Fmaj7 (skip the low E) as a substitute.' }
+    ] },
+  { id: 'l5', num: '05', level: 'Day 5', duration: '6 min', title: 'Strumming pattern #1', desc: 'D-DU-UDU. The single pattern behind a thousand songs.',
+    songs: ['knockin','bad-moon','three-little-birds'],
+    steps: [
+      { t: 'Down-strums only first.', d: 'Pick any chord. Count "1, 2, 3, 4" steady. Down strum on each beat. Keep wrist loose like shaking off water.' },
+      { t: 'Add up-strums.', d: 'Down on "1", down-up on "2 and", up on "and of 3", down-up on "4 and". Hand keeps moving like a pendulum even when you\'re not hitting strings.' },
+      { t: 'Subdivide it.', d: 'The full pattern: D - D U - U D U. Played over one bar of 4/4.' },
+      { t: 'Try it on every chord you know.', d: 'Em, Am, G, C, D. The pattern stays the same. Only the chord changes.' }
+    ] },
+  { id: 'l6', num: '06', level: 'Week 1', duration: '5 min', title: 'Chord changes', desc: 'The whole battle. This is where everyone gets stuck — and breaks through.',
+    songs: ['wagon-wheel','sweet-home','brown-eyed-girl'],
+    steps: [
+      { t: 'Use a metronome at 50 BPM.', d: 'Tools page. Slow. Each chord gets four strums.' },
+      { t: 'Lift, then place.', d: 'Don\'t move fingers in mid-air. Lift just enough, slide to the next shape, place down together.' },
+      { t: 'Find anchor fingers.', d: 'C and Am share two fingers in the same place. G and Em both use 2nd finger on the same fret. Look for these shortcuts.' },
+      { t: 'One pair at a time.', d: 'Em ↔ Am for 60 seconds. Then Am ↔ C. Then G ↔ C. Don\'t mix until each pair is automatic.' }
+    ] },
+  { id: 'l7', num: '07', level: 'Week 1', duration: '6 min', title: 'Read tab', desc: 'How guitar tablature works. The lazy notation system. Beloved for a reason.',
+    songs: ['smoke-water','seven-nation'],
+    steps: [
+      { t: 'Six lines = six strings.', d: 'Top line is high E (thinnest). Bottom line is low E (thickest). Opposite of a chord chart!' },
+      { t: 'Numbers = frets.', d: 'A "3" on the bottom line means: play the low E string at fret 3. A "0" means open.' },
+      { t: 'Read left to right.', d: 'One note at a time, in order. Stacked numbers = play simultaneously (like a chord).' },
+      { t: 'Symbols.', d: 'h = hammer-on, p = pull-off, / = slide up, b = bend. We\'ll get to these later.' }
+    ] },
+  { id: 'l8', num: '08', level: 'Week 2', duration: '10 min', title: 'Your first complete song', desc: 'Pick from the Song Library. Play it start to finish.',
+    songs: ['knockin','bad-moon','wagon-wheel','twist-and-shout'],
+    steps: [
+      { t: 'Pick a 3-chord song.', d: 'Knockin\' on Heaven\'s Door (G, D, Am, C) or Bad Moon Rising (D, A, G). Both are doable in a day.' },
+      { t: 'Learn the progression first.', d: 'No strumming yet. Just the chord changes, four strums per chord, slow.' },
+      { t: 'Add the strum pattern.', d: 'Once the changes feel automatic, layer the strum on top.' },
+      { t: 'Play along with the recording.', d: 'Find it on YouTube or a streaming app. The original tempo will feel fast at first. That\'s normal. Slow practice, then catch up.' }
+    ] },
+  { id: 'l9', num: '09', level: 'Week 3', duration: '12 min', title: 'Barre chords — the wall', desc: 'F, Bm, and the secret of movable shapes. This is where guitar gets hard, then easy.',
+    chords: ['F','Bm','F#m','Bb'],
+    songs: ['hey-jude','hotel-california','stand-by-me'],
+    steps: [
+      { t: 'Build hand strength first.', d: 'Press the index finger flat across all six strings at fret 5. Just hold it. Strum. If buzzing, press harder, roll the finger slightly. Do this 30 seconds a day for a week.' },
+      { t: 'F major — the E shape barred.', d: 'Barre across fret 1 with index. Then add the rest of E-chord fingers on top: 2nd on G string fret 2, 3rd on A fret 3, 4th on D fret 3. Hardest open-position chord.' },
+      { t: 'Fmaj7 cheat.', d: 'If F still buzzes, use Fmaj7 (xx3210) — same role in songs, no barre needed. Use it as a stepping stone.' },
+      { t: 'Bm — the A shape barred.', d: 'Barre at fret 2. Then the A-minor shape on top: 2nd on D fret 4, 3rd on G fret 4, 4th on B fret 3.' },
+      { t: 'Why this matters.', d: 'Once you know F (E shape) and Bm (A shape), you can play any major and minor chord, anywhere. Slide F up one fret = F#. Two = G. Bm up two = C#m. CAGED is right around the corner.' }
+    ] },
+  { id: 'l10', num: '10', level: 'Week 4', duration: '15 min', title: 'First solo — pentatonic Box 1', desc: 'Five notes that sound like rock music. Play them in order, then in any order. You\'re soloing.',
+    songs: ['bad-moon','sweet-home','wish-you-were-here'],
+    steps: [
+      { t: 'Find the position.', d: 'Index finger sits on fret 5 of the low E string. That note is A. The whole box covers frets 5–8, all six strings. See the Scales page.' },
+      { t: 'One finger per fret.', d: 'Index = fret 5. Middle = fret 6. Ring = fret 7. Pinky = fret 8. Each finger has its job. Don\'t let one finger do two frets.' },
+      { t: 'Play it ascending, then descending.', d: 'Bottom string up, top string down. Slowly. With a pick, alternate down-up strokes. Get clean before fast.' },
+      { t: 'Play random notes from the box.', d: 'Skip around. Any two-note sequence within the box will sound musical — that\'s the magic of pentatonic. It\'s nearly impossible to play a "wrong" note.' },
+      { t: 'Solo over a song.', d: 'Put on Bad Moon Rising or Knockin\' on Heaven\'s Door (they\'re both in a key where A minor pentatonic works) and noodle. Hit one note per beat at first.' }
+    ] }
+];
+
+// SONGS — chord progressions by section, no lyrics
+// genre: folk | classic-rock | variety
+const SONGS = [
+  { id: 'house-rising-sun', title: 'House of the Rising Sun', artist: 'Traditional · arr. The Animals', year: 1964, genre: 'folk', key: 'Am', capo: 0, bpm: 76, difficulty: 'Beginner+', chords: ['Am','C','D','F','E'],
+    strum: 'Arpeggio in 6/8: bass-3-2-1-2-3 per chord. Pick each note rather than strum.',
+    sections: [
+      { name: 'Verse / Chorus (8 bars)', bars: ['Am','C','D','F','Am','C','E','E'] }
+    ],
+    notes: 'Traditional folk song. The Animals arrangement is the famous one. 6/8 time — count "1-2-3, 4-5-6". Each chord gets 6 counts.' },
+
+  { id: 'blowin-wind', title: "Blowin' in the Wind", artist: 'Bob Dylan', year: 1962, genre: 'folk', key: 'G', capo: 0, bpm: 80, difficulty: 'Beginner', chords: ['G','C','D','Em'],
+    strum: 'Gentle D-DU-UDU. Don\'t rush.',
+    sections: [
+      { name: 'Verse (8 bars)', bars: ['G','C','G','G','G','C','D','D'] },
+      { name: 'Pre-chorus (4 bars)', bars: ['C','D','G','Em'] },
+      { name: 'Chorus tag (3 bars)', bars: ['C','D','G'] }
+    ],
+    notes: 'Three chords, simple structure. A great early teaching song — the changes are slow and predictable.' },
+
+  { id: 'country-roads', title: 'Country Roads', artist: 'John Denver', year: 1971, genre: 'folk', key: 'G', capo: 0, bpm: 82, difficulty: 'Beginner', chords: ['G','Em','D','C'],
+    strum: 'D-DU-UDU, mid-tempo.',
+    sections: [
+      { name: 'Verse (8 bars)', bars: ['G','Em','D','C','G','G','D','G'] },
+      { name: 'Chorus (8 bars)', bars: ['G','D','Em','C','G','D','G','G'] }
+    ],
+    notes: 'Everyone knows this one. The G ↔ Em ↔ D progression is foundational. Practice the chorus first.' },
+
+  { id: 'leaving-jet-plane', title: "Leaving on a Jet Plane", artist: 'John Denver', year: 1966, genre: 'folk', key: 'G', capo: 0, bpm: 100, difficulty: 'Beginner', chords: ['G','C','D','Em'],
+    strum: 'D-DU-UDU. Two beats per chord through verse.',
+    sections: [
+      { name: 'Verse (8 bars)', bars: ['G','C','G','C','G','C','G','D'] },
+      { name: 'Chorus (8 bars)', bars: ['G','C','G','C','G','C','Em','D'] }
+    ],
+    notes: 'Almost entirely G and C, with D for the cadence. Easiest two-chord-feel song in the folk canon.' },
+
+  { id: 'wagon-wheel', title: 'Wagon Wheel', artist: 'Old Crow Medicine Show / Bob Dylan', year: 2004, genre: 'folk', key: 'G', capo: 0, bpm: 152, difficulty: 'Beginner', chords: ['G','D','Em','C'],
+    strum: 'Fast D-DU-UDU. Energy is everything.',
+    sections: [
+      { name: 'Verse / Chorus (4 bars)', bars: ['G','D','Em','C'] }
+    ],
+    notes: 'Four chords. Same progression every section. The "I-V-vi-IV" — the most common chord progression in popular music. Original key is A (capo 2).' },
+
+  { id: 'this-land', title: 'This Land Is Your Land', artist: 'Woody Guthrie', year: 1944, genre: 'folk', key: 'G', capo: 0, bpm: 110, difficulty: 'Beginner', chords: ['G','C','D'],
+    strum: 'Classic country alternating bass + down strum (boom-chuck).',
+    sections: [
+      { name: 'Verse (8 bars)', bars: ['G','G','C','G','G','G','D','G'] },
+      { name: 'Chorus (8 bars)', bars: ['C','C','G','G','G','G','D','G'] }
+    ],
+    notes: 'American folk standard. Three chords forever. Boom-chuck strumming (down on bass note, then chuck on top strings) is the traditional feel.' },
+
+  { id: 'if-i-had-hammer', title: 'If I Had a Hammer', artist: 'Pete Seeger / Lee Hays', year: 1949, genre: 'folk', key: 'D', capo: 0, bpm: 120, difficulty: 'Beginner', chords: ['D','G','A'],
+    strum: 'Boom-chuck or steady down strums.',
+    sections: [
+      { name: 'Verse (8 bars)', bars: ['D','G','D','A','D','G','A','D'] }
+    ],
+    notes: 'Three-chord folk classic. The D-G-A pattern is the I-IV-V of the key — the most foundational chord movement in Western music.' },
+
+  { id: 'knockin', title: "Knockin' on Heaven's Door", artist: 'Bob Dylan', year: 1973, genre: 'classic-rock', key: 'G', capo: 0, bpm: 74, difficulty: 'Beginner', chords: ['G','D','Am','C'],
+    strum: 'D-DU-UDU. Two strums per chord, four chords per cycle.',
+    sections: [
+      { name: 'Whole song (4 bars, repeats)', bars: ['G','D','Am','Am','G','D','C','C'] }
+    ],
+    notes: 'The textbook "first complete song". Four chords, two bars each, repeats forever. Played by everyone from Guns N\' Roses to Eric Clapton.' },
+
+  { id: 'bad-moon', title: 'Bad Moon Rising', artist: 'Creedence Clearwater Revival', year: 1969, genre: 'classic-rock', key: 'D', capo: 0, bpm: 180, difficulty: 'Beginner', chords: ['D','A','G'],
+    strum: 'Energetic D-DU-UDU. This one moves.',
+    sections: [
+      { name: 'Verse (4 bars)', bars: ['D','A','G','D'] },
+      { name: 'Chorus (4 bars)', bars: ['G','D','A','D'] }
+    ],
+    notes: 'Pure I-V-IV. Tempo feels fast but it\'s the same three chords used in folk songs — just played with rock energy.' },
+
+  { id: 'horse-no-name', title: 'A Horse with No Name', artist: 'America', year: 1971, genre: 'classic-rock', key: 'Em', capo: 0, bpm: 122, difficulty: 'Beginner', chords: ['Em','Dadd9'],
+    strum: 'D-D-DU-UDU, two bars per chord.',
+    sections: [
+      { name: 'Whole song (2 bars, repeats)', bars: ['Em','Dadd9'] }
+    ],
+    notes: 'The most famous two-chord song. Just Em and Dadd9 (xx0230), back and forth. Endlessly repeats — a perfect confidence builder.' },
+
+  { id: 'sweet-home', title: 'Sweet Home Alabama', artist: 'Lynyrd Skynyrd', year: 1974, genre: 'classic-rock', key: 'D', capo: 0, bpm: 98, difficulty: 'Beginner', chords: ['D','Cadd9','G'],
+    strum: 'D-DU-UDU with a little swing.',
+    sections: [
+      { name: 'Whole song (2 bars, repeats)', bars: ['D','Cadd9','G','G'] }
+    ],
+    notes: 'Three chords. One progression. Whole song. Sometimes called "the three chords that taught a generation to play guitar".',
+    riff: 'e|--2--3--2--0------------|\nB|--3--3--3--3--3-1-0-----|\nG|--2--0--2--0------------|\nD|--0-------0-------------|\nA|------------------------|\nE|------------------------|' },
+
+  { id: 'wish-you-were-here', title: 'Wish You Were Here', artist: 'Pink Floyd', year: 1975, genre: 'classic-rock', key: 'G', capo: 0, bpm: 60, difficulty: 'Intermediate', chords: ['Em7','G','A7sus4','C','D'],
+    strum: 'Thoughtful arpeggios, sparse strumming.',
+    sections: [
+      { name: 'Intro / Verse (8 bars)', bars: ['Em7','G','Em7','G','Em7','A7sus4','Em7','A7sus4'] },
+      { name: 'Pre-chorus (4 bars)', bars: ['G','D','C','C'] },
+      { name: 'Bridge (4 bars)', bars: ['Em7','G','C','D'] }
+    ],
+    notes: 'The intro is a guitar lesson in itself — open chords played with care. Once the chord changes are clean, the arpeggio picking comes next.',
+    riff: 'e|--3--3--0--3--0--0------|\nB|--3--3--3--3--3--3------|\nG|--0--2--2--0--2--2------|\nD|--0--0--0--0--0--0------|\nA|------------------------|\nE|--3--2--0--3--2--0------|' },
+
+  { id: 'free-fallin', title: "Free Fallin'", artist: 'Tom Petty', year: 1989, genre: 'classic-rock', key: 'F', capo: 3, bpm: 85, difficulty: 'Beginner', chords: ['D','Dsus4','G','A','Asus4'],
+    strum: 'D-DU-UDU. Steady, never rushed.',
+    sections: [
+      { name: 'Verse / Chorus (4 bars)', bars: ['D','Dsus4','G','G'] },
+      { name: 'B section (4 bars)', bars: ['D','Dsus4','A','Asus4'] }
+    ],
+    notes: 'Capo 3 makes the open D, G, A shapes sound in F major (the original key). Three-chord song with sus chords for color.' },
+
+  { id: 'brown-eyed-girl', title: 'Brown Eyed Girl', artist: 'Van Morrison', year: 1967, genre: 'classic-rock', key: 'G', capo: 0, bpm: 148, difficulty: 'Beginner+', chords: ['G','C','D','Em'],
+    strum: 'Bright D-DU-UDU, light and skippy.',
+    sections: [
+      { name: 'Verse (4 bars)', bars: ['G','C','G','D'] },
+      { name: 'Pre-chorus (4 bars)', bars: ['C','D','G','Em'] },
+      { name: 'Chorus (4 bars)', bars: ['C','D','G','D'] }
+    ],
+    notes: 'I-IV-I-V verse. The lead-in guitar riff is iconic — well worth learning after the chords are solid.' },
+
+  { id: 'wonderwall', title: 'Wonderwall', artist: 'Oasis', year: 1995, genre: 'classic-rock', key: 'F#m', capo: 2, bpm: 87, difficulty: 'Beginner+', chords: ['Em7','G','Dsus4','A7sus4','Cadd9'],
+    strum: 'D-DU-UDU. Continuous, never stops.',
+    sections: [
+      { name: 'Verse (4 bars)', bars: ['Em7','G','Dsus4','A7sus4'] },
+      { name: 'Pre-chorus (4 bars)', bars: ['Cadd9','Dsus4','A7sus4','A7sus4'] },
+      { name: 'Chorus (4 bars)', bars: ['Cadd9','Em7','G','Em7'] }
+    ],
+    notes: 'Capo 2 gets you the original key. Five chord shapes total — and they all use a similar fingering, so changes are easy once you learn the pattern.' },
+
+  { id: 'three-little-birds', title: 'Three Little Birds', artist: 'Bob Marley', year: 1977, genre: 'variety', key: 'A', capo: 0, bpm: 76, difficulty: 'Beginner', chords: ['A','D','E'],
+    strum: 'Reggae upstroke on the 2 and 4 (offbeat). Skank.',
+    sections: [
+      { name: 'Verse (4 bars)', bars: ['A','A','E','A'] },
+      { name: 'Chorus (4 bars)', bars: ['D','A','E','A'] }
+    ],
+    notes: 'Three chords. Reggae strumming — short, percussive up-strokes on the offbeats. Mute the strings with your left hand between hits for that "chk" sound.' },
+
+  { id: 'stand-by-me', title: 'Stand By Me', artist: 'Ben E. King', year: 1961, genre: 'variety', key: 'A', capo: 0, bpm: 60, difficulty: 'Beginner', chords: ['A','F#m','D','E'],
+    strum: 'Slow doo-wop pattern. Quarter-note feel.',
+    sections: [
+      { name: 'Whole song (4 bars, repeats)', bars: ['A','F#m','D','E'] }
+    ],
+    notes: 'The "50s progression": I-vi-IV-V. F#m is a barre — for a beginner, you can sub it with F#m7 (2x222x) which is much easier.' },
+
+  { id: 'riptide', title: 'Riptide', artist: 'Vance Joy', year: 2013, genre: 'variety', key: 'C', capo: 1, bpm: 102, difficulty: 'Beginner', chords: ['Am','G','C','F'],
+    strum: 'D-DU-UDU. Steady ukulele-style energy.',
+    sections: [
+      { name: 'Verse (4 bars)', bars: ['Am','G','C','C'] },
+      { name: 'Chorus (4 bars)', bars: ['Am','G','C','C'] },
+      { name: 'Tag (3 bars)', bars: ['F','C','G'] }
+    ],
+    notes: 'Three chords most of the way through with a brief F in the tag. Capo 1 brings it to the original key.' },
+
+  { id: 'hallelujah', title: 'Hallelujah', artist: 'Leonard Cohen', year: 1984, genre: 'variety', key: 'C', capo: 0, bpm: 70, difficulty: 'Beginner+', chords: ['C','Am','F','G','E'],
+    strum: 'Slow 6/8 arpeggios. Pick the bass + top strings.',
+    sections: [
+      { name: 'Verse (8 bars)', bars: ['C','Am','C','Am','C','F','G','C'] },
+      { name: 'Pre-chorus (8 bars)', bars: ['C','F','G','Am','F','G','E','Am'] },
+      { name: 'Chorus (8 bars)', bars: ['F','Am','F','C','G','C','G','C'] }
+    ],
+    notes: 'Plays in 6/8 (or 12/8). Cohen\'s original uses arpeggios — pick the notes, don\'t strum. The chord progression is the song.' },
+
+  // ===== Added from the 50-song database (metadata only) =====
+  { id: 'let-it-be', title: 'Let It Be', artist: 'The Beatles', year: 1970, genre: 'classic-rock', key: 'C', capo: 0, bpm: 72, difficulty: 'Beginner', chords: ['C','G','Am','F'],
+    strum: 'Gentle D-DU-UDU.',
+    notes: 'The textbook four-chord pop progression: C – G – Am – F. If your dad learns just these four chords in this order, he can play hundreds of songs.' },
+
+  { id: 'have-you-ever', title: 'Have You Ever Seen the Rain', artist: 'Creedence Clearwater Revival', year: 1970, genre: 'classic-rock', key: 'Am', capo: 0, bpm: 78, difficulty: 'Beginner', chords: ['Am','F','C','G'],
+    strum: 'Steady D-DU-UDU.',
+    notes: 'Minor-key CCR classic. Good practice for the F chord — it sits naturally between Am and C in the progression.' },
+
+  { id: 'ring-of-fire', title: 'Ring of Fire', artist: 'Johnny Cash', year: 1963, genre: 'country', key: 'G', capo: 0, bpm: 88, difficulty: 'Beginner', chords: ['G','C','D'],
+    strum: 'March-feel boom-chuck or D-DU-UDU.',
+    notes: 'Three chords, marching tempo. The classic country I-IV-V. The mariachi-style horn lines transcribe nicely to a second guitar.' },
+
+  { id: 'dust-in-wind', title: 'Dust in the Wind', artist: 'Kansas', year: 1977, genre: 'folk', key: 'Am', capo: 0, bpm: 78, difficulty: 'Intermediate', chords: ['Am','G','C','Dm','F'],
+    strum: 'Travis-style fingerpicking, not strumming.',
+    notes: 'A fingerpicking song, not a strumming one. The alternating thumb pattern is the lesson. Save it until your dad is comfortable with the basic chord changes.' },
+
+  { id: 'blackbird', title: 'Blackbird', artist: 'The Beatles', year: 1968, genre: 'folk', key: 'G', capo: 0, bpm: 92, difficulty: 'Intermediate', chords: ['G','Am','C','D','Em'],
+    strum: 'Fingerstyle — thumb on bass, fingers on melody simultaneously.',
+    notes: 'The most loved fingerstyle teaching piece on guitar. The right-hand pattern is the hard part. Worth months of work — pays off forever.' },
+
+  { id: 'hotel-california', title: 'Hotel California', artist: 'Eagles', year: 1976, genre: 'classic-rock', key: 'Bm', capo: 7, bpm: 74, difficulty: 'Intermediate', chords: ['Bm','F#','A','E','G','D','Em'],
+    strum: 'Latin-influenced 16th-note pattern. Capo 7 gets the open-chord version.',
+    notes: 'Capo 7 turns the barre chords into open shapes (Am, E, G, D, F, C, Dm). Without capo it\'s all barres. Start with the capo version.' },
+
+  { id: 'stairway', title: 'Stairway to Heaven', artist: 'Led Zeppelin', year: 1971, genre: 'classic-rock', key: 'Am', capo: 0, bpm: 82, difficulty: 'Advanced', chords: ['Am','C','G','F','Dm','Bb'],
+    strum: 'Fingerstyle intro, electric strumming later. Tempo accelerates.',
+    notes: 'Page intentionally wrote the intro to be teachable — that\'s why it\'s been learned in every guitar shop for 50 years. Start with just the descending bass line.' },
+
+  { id: 'hey-jude', title: 'Hey Jude', artist: 'The Beatles', year: 1968, genre: 'classic-rock', key: 'F', capo: 0, bpm: 74, difficulty: 'Intermediate', chords: ['F','Bb','C','Gm'],
+    strum: 'Steady D-DU-UDU. Builds in intensity.',
+    notes: 'In F major, so most chords are barres (F, Bb, Gm). Use capo 3 with D, G, A, Em shapes if barres are still hard. The "na-na" outro repeats F – Eb – Bb – F forever.' },
+
+  { id: 'zombie', title: 'Zombie', artist: 'The Cranberries', year: 1994, genre: 'variety', key: 'Em', capo: 0, bpm: 84, difficulty: 'Intermediate', chords: ['Em','C','G','D'],
+    strum: 'Driving D-DU-UDU with palm muting on verses.',
+    notes: 'I-VI-III-VII progression (Em-C-G-D) — same chords as half of 90s rock. Palm muting gives the verse its tension; release on the chorus.' },
+
+  { id: 'wild-rover', title: 'The Wild Rover', artist: 'Traditional Irish', year: 1810, genre: 'folk', key: 'G', capo: 0, bpm: 110, difficulty: 'Beginner', chords: ['G','C','D'],
+    strum: 'Lively three-quarter or quick D-DU-UDU.',
+    notes: 'Traditional Irish pub tune. Public domain. Three chords, anthemic chorus made for stomping along. Great confidence builder.' },
+
+  { id: 'scarborough', title: 'Scarborough Fair', artist: 'Traditional / Simon & Garfunkel', year: 1966, genre: 'folk', key: 'Em', capo: 0, bpm: 68, difficulty: 'Intermediate', chords: ['Em','D','C','Bm'],
+    strum: 'Fingerpicking in 6/8. Gentle and modal.',
+    notes: 'Centuries-old English folk ballad — the melody itself is public domain. The Simon & Garfunkel arrangement is iconic; the fingerpicking is the lesson.' },
+
+  { id: 'boxer', title: 'The Boxer', artist: 'Simon & Garfunkel', year: 1969, genre: 'folk', key: 'G', capo: 2, bpm: 92, difficulty: 'Intermediate', chords: ['G','C','D','Em','Bm'],
+    strum: 'Fingerpicking pattern or gentle strum.',
+    notes: 'Capo 2 gets the original key. A great example of a song where the right-hand picking pattern matters as much as the chords.' },
+
+  { id: 'fast-car', title: 'Fast Car', artist: 'Tracy Chapman', year: 1988, genre: 'folk', key: 'A', capo: 0, bpm: 104, difficulty: 'Intermediate', chords: ['A','E','F#m','D'],
+    strum: 'Repeating fingerpicked arpeggio — the intro pattern carries the whole song.',
+    notes: 'The intro fingerpicking pattern is the whole identity of the song. Learn that one repeating figure and you have most of it.' },
+
+  { id: 'ho-hey', title: 'Ho Hey', artist: 'The Lumineers', year: 2012, genre: 'folk', key: 'C', capo: 0, bpm: 80, difficulty: 'Beginner', chords: ['C','F','Am','G'],
+    strum: 'Stomp-clap style. Heavy down strums with rests.',
+    notes: 'Modern folk anthem. Four chords. The "ho!" and "hey!" shouts are the rhythm — leave space for them in your strumming.' },
+
+  { id: 'budapest', title: 'Budapest', artist: 'George Ezra', year: 2014, genre: 'folk', key: 'G', capo: 0, bpm: 128, difficulty: 'Beginner', chords: ['G','Em','C','D'],
+    strum: 'Upbeat folk-pop strum.',
+    notes: 'Modern singalong. Same I-vi-IV-V progression that\'s powered pop music for 70 years.' },
+
+  { id: 'sound-of-silence', title: 'The Sound of Silence', artist: 'Simon & Garfunkel', year: 1964, genre: 'folk', key: 'Am', capo: 0, bpm: 106, difficulty: 'Intermediate', chords: ['Am','G','F','C','Dm'],
+    strum: 'Slow, dramatic. Either arpeggios or measured strumming.',
+    notes: 'A masterclass in dynamics. Start almost silent, build to a wall of sound. The chords are simple; the feel is everything.' },
+
+  { id: 'mrs-robinson', title: 'Mrs. Robinson', artist: 'Simon & Garfunkel', year: 1968, genre: 'folk', key: 'G', capo: 0, bpm: 92, difficulty: 'Intermediate', chords: ['G','Em','C','D','Am'],
+    strum: 'Folk-rock pattern with bass-note movement.',
+    notes: 'The "Doo doo doo doo" opening is built around an E-major to A-minor movement. Once that\'s under the fingers, the rest of the song follows.' },
+
+  { id: 'american-pie', title: 'American Pie', artist: 'Don McLean', year: 1971, genre: 'folk', key: 'G', capo: 0, bpm: 138, difficulty: 'Intermediate', chords: ['G','Am','C','D','Em'],
+    strum: 'Strong driving folk strum, builds through the song.',
+    notes: 'Eight and a half minutes long. A test of endurance. Verse-chorus-verse-chorus structure with the chorus picking up energy each time.' },
+
+  { id: 'father-and-son', title: 'Father and Son', artist: 'Cat Stevens', year: 1970, genre: 'folk', key: 'G', capo: 0, bpm: 72, difficulty: 'Intermediate', chords: ['G','Em','C','D','Am'],
+    strum: 'Gentle arpeggios or slow strumming.',
+    notes: 'Two voices, two perspectives — Cat Stevens sings both. Played gently, mostly fingerpicked. Especially fitting song for a dad-son project.' },
+
+  { id: 'fire-and-rain', title: 'Fire and Rain', artist: 'James Taylor', year: 1970, genre: 'folk', key: 'G', capo: 0, bpm: 76, difficulty: 'Intermediate', chords: ['G','Em','C','D','Am'],
+    strum: 'James Taylor\'s signature thumb-and-fingers picking.',
+    notes: 'The James Taylor right hand: bass note on the thumb, melody on fingers, all at once. Best learned slow, one bar at a time.' },
+
+  { id: 'tears-in-heaven', title: 'Tears in Heaven', artist: 'Eric Clapton', year: 1992, genre: 'blues', key: 'A', capo: 0, bpm: 80, difficulty: 'Intermediate', chords: ['A','E','F#m','D','Bm'],
+    strum: 'Gentle fingerpicking, classical-influenced.',
+    notes: 'Clapton\'s Unplugged version is the touchstone. Quiet, intimate. The bass line walks under the chords — that\'s the hook.' },
+
+  { id: 'layla', title: 'Layla', artist: 'Derek and the Dominos', year: 1970, genre: 'blues', key: 'Dm', capo: 0, bpm: 116, difficulty: 'Advanced', chords: ['Dm','Bb','C','Gm','F'],
+    strum: 'Riff-driven. The verse riff is the song.',
+    notes: 'The Unplugged version is much easier than the original. Either way the iconic descending riff is the whole identity of the song.' },
+
+  { id: 'pride-and-joy', title: 'Pride and Joy', artist: 'Stevie Ray Vaughan', year: 1983, genre: 'blues', key: 'E', capo: 0, bpm: 128, difficulty: 'Advanced', chords: ['E','A','B'],
+    strum: 'Texas shuffle — swung eighths with a thumb-and-fingers groove.',
+    notes: 'Twelve-bar blues in E. The textbook example for teaching the shuffle rhythm and the I-IV-V blues form.' },
+
+  { id: 'johnny-b-goode', title: 'Johnny B. Goode', artist: 'Chuck Berry', year: 1958, genre: 'classic-rock', key: 'Bb', capo: 0, bpm: 168, difficulty: 'Intermediate', chords: ['Bb','Eb','F'],
+    strum: 'Boogie-woogie rock shuffle.',
+    notes: 'Standard 12-bar blues in Bb. Most cover versions move it to A (just barre everything 1 fret down) for easier chord shapes.' },
+
+  { id: 'twist-and-shout', title: 'Twist and Shout', artist: 'The Beatles', year: 1963, genre: 'classic-rock', key: 'D', capo: 0, bpm: 130, difficulty: 'Beginner', chords: ['D','G','A'],
+    strum: 'High-energy down strums.',
+    notes: 'Three chords. Originally by the Isley Brothers, made famous by the Beatles. Pure I-IV-V — the simplest rock progression there is.' },
+
+  { id: 'i-walk-the-line', title: 'I Walk the Line', artist: 'Johnny Cash', year: 1956, genre: 'country', key: 'F', capo: 0, bpm: 106, difficulty: 'Beginner', chords: ['F','Bb','C'],
+    strum: 'Boom-chuck (alternating bass + chord).',
+    notes: 'Famous boom-chuck country rhythm: thumb on the bass note, then strum the top strings. The key changes between verses on the recording — start in F and stay there to keep it simple.' },
+
+  { id: 'folsom-prison', title: 'Folsom Prison Blues', artist: 'Johnny Cash', year: 1955, genre: 'country', key: 'E', capo: 0, bpm: 108, difficulty: 'Beginner', chords: ['E','A','B'],
+    strum: 'Train beat — steady, percussive, like a locomotive.',
+    notes: 'Three chords. The "train beat" is the lesson: muted bass note on every quarter, like a chugging engine.' },
+
+  { id: 'bobby-mcgee', title: 'Me and Bobby McGee', artist: 'Janis Joplin / Kris Kristofferson', year: 1971, genre: 'country', key: 'G', capo: 0, bpm: 92, difficulty: 'Intermediate', chords: ['G','C','D','Em'],
+    strum: 'Easygoing country-rock D-DU-UDU.',
+    notes: 'Kristofferson wrote it; Joplin made it famous. The chord progression is straightforward — the lesson is in the storytelling delivery.' },
+
+  { id: 'the-weight', title: 'The Weight', artist: 'The Band', year: 1968, genre: 'classic-rock', key: 'A', capo: 0, bpm: 76, difficulty: 'Intermediate', chords: ['A','C#m','D','F#m','E'],
+    strum: 'Loose, slightly behind-the-beat country-rock.',
+    notes: 'Originally in A. The descending bass line (A → C#m → D → A) is the signature. Play those bass notes deliberately under your strums.' },
+
+  { id: 'fortunate-son', title: 'Fortunate Son', artist: 'Creedence Clearwater Revival', year: 1969, genre: 'classic-rock', key: 'G', capo: 0, bpm: 142, difficulty: 'Intermediate', chords: ['G','C','D','Em'],
+    strum: 'Aggressive, percussive down strums.',
+    notes: 'Fast and angry. Same chord palette as a folk song — but played with rock attitude. Tempo and bite are the lesson.' },
+
+  { id: 'born-to-be-wild', title: 'Born to Be Wild', artist: 'Steppenwolf', year: 1968, genre: 'classic-rock', key: 'E', capo: 0, bpm: 146, difficulty: 'Intermediate', chords: ['E','G','A','D'],
+    strum: 'Driving 8th-note down strums. Power chords work great.',
+    notes: 'The original biker rock anthem. Power chords (root + 5th, two fingers) sound more authentic than full chords here.' },
+
+  { id: 'smoke-water', title: 'Smoke on the Water', artist: 'Deep Purple', year: 1972, genre: 'classic-rock', key: 'G', capo: 0, bpm: 112, difficulty: 'Beginner', chords: ['G','Bb','C'],
+    strum: 'Riff-based. The four-note riff IS the song.',
+    notes: 'Every guitar player learns this riff first. G – Bb – C, played as two-note power chords on the bottom two strings. Frets 0-3, 0-5, 0-6.',
+    riff: 'D|--0--3--5---0--3--6--5---0--3--5---3--0---|\nA|--0--3--5---0--3--6--5---0--3--5---3--0---|\nE|------------------------------------------|' },
+
+  { id: 'seven-nation', title: 'Seven Nation Army', artist: 'The White Stripes', year: 2003, genre: 'variety', key: 'E', capo: 0, bpm: 124, difficulty: 'Beginner', chords: ['E','G','A','C','B'],
+    strum: 'Riff-driven, sparse during the riff, full chords on the chorus.',
+    notes: 'The famous riff: E – E – G – E – D – C – B, all on the low E string (frets 0-0-3-0-2-0). One of the most recognizable riffs of the 2000s.',
+    riff: 'E|--0--0--3--0--2--0--0--2--0------|\nA|---------------------------------|' },
+
+  { id: 'use-somebody', title: 'Use Somebody', artist: 'Kings of Leon', year: 2008, genre: 'variety', key: 'C', capo: 0, bpm: 137, difficulty: 'Intermediate', chords: ['C','F','Am','G'],
+    strum: 'Driving 8th notes, building dynamics.',
+    notes: 'Four chords, builds in intensity. Start very gentle in the verse, hammer it on the chorus. Dynamics are the whole song.' },
+
+  { id: 'chasing-cars', title: 'Chasing Cars', artist: 'Snow Patrol', year: 2006, genre: 'variety', key: 'A', capo: 0, bpm: 104, difficulty: 'Beginner', chords: ['A','E','D','F#m'],
+    strum: 'Gentle, sustained — let the chords ring.',
+    notes: 'Two-chord verse (A – E), four-chord chorus. The whole song hangs on letting chords ring out rather than busy strumming.' },
+
+  // ===== Expanded library =====
+  // -- Folk / singer-songwriter --
+  { id: 'the-times', title: "The Times They Are a-Changin'", artist: 'Bob Dylan', year: 1964, genre: 'folk', key: 'G', capo: 0, bpm: 88, difficulty: 'Beginner', chords: ['G','Em','C','D','Am'],
+    strum: '3/4 waltz time — count 1-2-3, 1-2-3.',
+    notes: 'In 3/4 waltz time, not the usual 4/4. Great for teaching a different rhythmic feel. Fingerpicking suits it well.' },
+  { id: 'mr-tambourine', title: 'Mr. Tambourine Man', artist: 'Bob Dylan', year: 1965, genre: 'folk', key: 'D', capo: 0, bpm: 120, difficulty: 'Beginner', chords: ['D','G','A','Em'],
+    strum: 'Jangly D-DU-UDU. The Byrds version is brighter.',
+    notes: 'Two-chord-feel verses (D and G) with A for lift. The Byrds turned it into folk-rock with a 12-string.' },
+  { id: 'puff', title: 'Puff the Magic Dragon', artist: 'Peter, Paul and Mary', year: 1963, genre: 'folk', key: 'C', capo: 0, bpm: 90, difficulty: 'Beginner', chords: ['C','Em','F','G','Am','D'],
+    strum: 'Gentle D-DU-UDU.',
+    notes: 'Moves through many chords gently — a great workout for clean changes. Friendly enough for an absolute beginner.' },
+  { id: 'where-have-flowers', title: 'Where Have All the Flowers Gone', artist: 'Pete Seeger', year: 1955, genre: 'folk', key: 'G', capo: 0, bpm: 96, difficulty: 'Beginner', chords: ['G','Em','C','D'],
+    strum: 'Slow folk waltz feel.',
+    notes: 'Classic Seeger protest folk. I-vi-IV-V — the same four chords as a thousand other songs, in a gentle circular pattern.' },
+  { id: 'five-hundred-miles', title: '500 Miles', artist: 'Traditional / Peter, Paul and Mary', year: 1962, genre: 'folk', key: 'C', capo: 0, bpm: 92, difficulty: 'Beginner', chords: ['C','Am','F','G','Em'],
+    strum: 'Gentle, steady D-DU-UDU.',
+    notes: 'Traditional American folk. Simple, repeating progression — sad and singable. Good for a beginner to feel a whole song quickly.' },
+  { id: 'big-yellow-taxi', title: 'Big Yellow Taxi', artist: 'Joni Mitchell', year: 1970, genre: 'folk', key: 'C', capo: 0, bpm: 120, difficulty: 'Beginner', chords: ['C','F','G'],
+    strum: 'Bright, bouncy strum.',
+    notes: 'Three chords, upbeat and fun. A great example of how much you can do with just C, F, and G.' },
+  { id: 'both-sides-now', title: 'Both Sides Now', artist: 'Joni Mitchell', year: 1969, genre: 'folk', key: 'G', capo: 0, bpm: 100, difficulty: 'Intermediate', chords: ['G','C','D','Em','Am'],
+    strum: 'Fingerpicked or gentle strum.',
+    notes: 'Beautiful, reflective. Mostly open chords. The original uses an unusual tuning, but standard tuning with these chords works fine.' },
+  { id: 'heart-of-gold', title: 'Heart of Gold', artist: 'Neil Young', year: 1972, genre: 'folk', key: 'Em', capo: 0, bpm: 87, difficulty: 'Beginner', chords: ['Em','C','D','G'],
+    strum: 'Easy D-DU-UDU with a harmonica break.',
+    notes: 'Em-C-D verse, G-D-Em chorus. Add a harmonica on a neck rack and you have the full Neil Young experience.' },
+  { id: 'the-sound-of-rain', title: 'Have You Ever Seen the Rain (acoustic)', artist: 'CCR', year: 1971, genre: 'folk', key: 'C', capo: 0, bpm: 116, difficulty: 'Beginner', chords: ['C','G','Am','F'],
+    strum: 'Steady D-DU-UDU.',
+    notes: 'An alternate-key acoustic take on the CCR classic, in C. Four chords, endlessly singable.' },
+  { id: 'landslide', title: 'Landslide', artist: 'Fleetwood Mac', year: 1975, genre: 'folk', key: 'C', capo: 0, bpm: 86, difficulty: 'Intermediate', chords: ['C','G','Am','F','Em'],
+    strum: 'Fingerpicked Travis pattern.',
+    notes: 'Lindsey Buckingham\'s fingerpicking is the lesson — a rolling pattern with the capo usually on 3. Worth slow, patient practice.' },
+  { id: 'fire-fly', title: 'The Cave', artist: 'Mumford & Sons', year: 2009, genre: 'folk', key: 'C', capo: 2, bpm: 130, difficulty: 'Intermediate', chords: ['C','F','Am','G','Em'],
+    strum: 'Builds from gentle picking to furious strumming.',
+    notes: 'Capo 2. The dynamic build — quiet to explosive — is the whole identity. Great for teaching control of intensity.' },
+  { id: 'skinny-love', title: 'Skinny Love', artist: 'Bon Iver', year: 2008, genre: 'folk', key: 'Am', capo: 0, bpm: 120, difficulty: 'Intermediate', chords: ['Am','C','Dm'],
+    strum: 'Percussive, urgent picking in an open-ish tuning.',
+    notes: 'Often played in a custom tuning (Capo 2, open Cmaj). The standard-tuning version uses Am, C, Dm. Raw and rhythmic.' },
+  { id: 'the-night', title: 'The Night We Met', artist: 'Lord Huron', year: 2015, genre: 'folk', key: 'C', capo: 0, bpm: 87, difficulty: 'Beginner', chords: ['C','Em','F','G','Am'],
+    strum: 'Slow, dreamy arpeggios.',
+    notes: 'Haunting and slow. The arpeggiated chords ring into each other. Let everything sustain.' },
+
+  // -- Classic rock --
+  { id: 'wild-horses', title: 'Wild Horses', artist: 'The Rolling Stones', year: 1971, genre: 'classic-rock', key: 'G', capo: 0, bpm: 70, difficulty: 'Intermediate', chords: ['G','Am','C','D','F','Em','B7'],
+    strum: 'Slow, with a distinctive intro lick.',
+    notes: 'The intro riff (Bm-G picking) is iconic. Open chords throughout. Slow enough to play feelingly even as a beginner.' },
+  { id: 'angie', title: 'Angie', artist: 'The Rolling Stones', year: 1973, genre: 'classic-rock', key: 'Am', capo: 0, bpm: 70, difficulty: 'Intermediate', chords: ['Am','E','G','F','C','Dm'],
+    strum: 'Fingerpicked, expressive.',
+    notes: 'A fingerpicking ballad. The descending intro figure is the signature. Mostly open chords, played delicately.' },
+  { id: 'patience', title: 'Patience', artist: "Guns N' Roses", year: 1989, genre: 'classic-rock', key: 'C', capo: 0, bpm: 67, difficulty: 'Beginner', chords: ['C','G','D','A','Em'],
+    strum: 'Whistled intro, then gentle picking and strumming.',
+    notes: 'An all-acoustic GNR song. C-G-D-A-Em, fingerpicked then strummed. The whistling is optional but encouraged.' },
+  { id: 'more-than-words', title: 'More Than Words', artist: 'Extreme', year: 1990, genre: 'classic-rock', key: 'G', capo: 0, bpm: 90, difficulty: 'Advanced', chords: ['G','Cadd9','D','Em','C','Am','Am7'],
+    strum: 'Percussive fingerstyle with slaps on the body.',
+    notes: 'The percussive thumb-slap technique is the whole point — and it\'s hard. An advanced fingerstyle goal worth aspiring to.' },
+  { id: 'dont-look-back', title: 'Don\'t Look Back in Anger', artist: 'Oasis', year: 1996, genre: 'classic-rock', key: 'C', capo: 0, bpm: 82, difficulty: 'Intermediate', chords: ['C','G','Am','E','F','D','Em'],
+    strum: 'Steady D-DU-UDU, anthemic.',
+    notes: 'A piano song that translates beautifully to guitar. The descending C-G-Am-E intro is pure singalong fuel.' },
+  { id: 'champagne', title: 'Champagne Supernova', artist: 'Oasis', year: 1995, genre: 'classic-rock', key: 'A', capo: 0, bpm: 73, difficulty: 'Intermediate', chords: ['A','Asus4','G','F#m','E','D'],
+    strum: 'Slow, dreamy, with sus-chord movement.',
+    notes: 'The Asus4-to-A movement gives it that hypnotic feel. Slow and spacious — let it breathe.' },
+  { id: 'good-riddance', title: 'Good Riddance (Time of Your Life)', artist: 'Green Day', year: 1997, genre: 'classic-rock', key: 'G', capo: 0, bpm: 92, difficulty: 'Beginner', chords: ['G','Cadd9','D','Em'],
+    strum: 'Fingerpicked arpeggios — the picking pattern is the song.',
+    notes: 'Four chords, one repeating fingerpicked pattern. One of the best first fingerpicking songs there is. Capo-free, all open chords.' },
+  { id: 'wonderwall-2', title: 'Yellow', artist: 'Coldplay', year: 2000, genre: 'classic-rock', key: 'B', capo: 0, bpm: 87, difficulty: 'Intermediate', chords: ['G','D','C','Em'],
+    strum: 'Steady arpeggiated D-DU-UDU. Capo 0, played in G shapes.',
+    notes: 'Played with G, D, C, Em shapes (the recording is tuned up, but the shapes are simple). Big, warm, beginner-friendly.' },
+  { id: 'the-scientist', title: 'The Scientist', artist: 'Coldplay', year: 2002, genre: 'classic-rock', key: 'F', capo: 0, bpm: 73, difficulty: 'Intermediate', chords: ['Dm','Bb','F','C'],
+    strum: 'Gentle, piano-like arpeggios.',
+    notes: 'Four chords (Dm-Bb-F-C) looping. A piano ballad, but the chords transfer to guitar nicely. Bb is the one barre to manage.' },
+  { id: 'creep', title: 'Creep', artist: 'Radiohead', year: 1992, genre: 'classic-rock', key: 'G', capo: 0, bpm: 92, difficulty: 'Beginner', chords: ['G','B','C','Cm'],
+    strum: 'Big quarter-note strums, building.',
+    notes: 'Four chords: G-B-C-Cm. That move to Cm (minor iv) is what gives the chorus its ache. Simple but emotionally huge.' },
+  { id: 'about-a-girl', title: 'About a Girl', artist: 'Nirvana', year: 1989, genre: 'classic-rock', key: 'Em', capo: 0, bpm: 132, difficulty: 'Beginner', chords: ['Em','G','C#','A','C'],
+    strum: 'Driving 8th notes.',
+    notes: 'From the Unplugged set. Em-G verse, riffy and tight. A great intro to playing with a steady rock pulse.' },
+  { id: 'come-as-you-are', title: 'Come As You Are', artist: 'Nirvana', year: 1991, genre: 'classic-rock', key: 'Em', capo: 0, bpm: 120, difficulty: 'Beginner', chords: ['Em','A','G','D'],
+    strum: 'The watery riff on low strings, then power chords.',
+    notes: 'The famous chorused riff lives on the low E and A strings (frets around 0-2-4). Easy and unforgettable.',
+    riff: 'D|-------------------------|\nA|--0--2--2--0-------------|\nE|-----------------4--2--0-|' },
+  { id: 'redemption', title: 'Redemption Song', artist: 'Bob Marley', year: 1980, genre: 'classic-rock', key: 'G', capo: 0, bpm: 76, difficulty: 'Intermediate', chords: ['G','Em','C','D','Am','D7'],
+    strum: 'Gentle folk fingerpicking or light strum.',
+    notes: 'Marley\'s solo-acoustic farewell. All open chords. The little connecting bass runs between chords are the charm.' },
+  { id: 'horse-with-name-2', title: 'Lonely Boy', artist: 'The Black Keys', year: 2011, genre: 'classic-rock', key: 'F', capo: 0, bpm: 165, difficulty: 'Intermediate', chords: ['F','Bb','C'],
+    strum: 'Garage-rock riff with stop-start dynamics.',
+    notes: 'Riff-based blues rock. Three chords played with attitude and a relentless groove. Power-chord versions sound great.' },
+
+  // -- Country --
+  { id: 'jolene', title: 'Jolene', artist: 'Dolly Parton', year: 1973, genre: 'country', key: 'Am', capo: 0, bpm: 113, difficulty: 'Beginner', chords: ['Am','C','G','Em'],
+    strum: 'Driving, urgent D-DU-UDU.',
+    notes: 'Am-C-G-Em loop, the same all the way through. The capo often goes high (4+) to match Dolly\'s key. Hypnotic and easy.' },
+  { id: 'wagon-wheel-2', title: 'Tennessee Whiskey', artist: 'Chris Stapleton', year: 2015, genre: 'country', key: 'A', capo: 0, bpm: 50, difficulty: 'Beginner', chords: ['A','Bm'],
+    strum: 'Slow, soulful sway. Just two chords.',
+    notes: 'Two chords — A and Bm — for the entire song. The challenge is feel and patience, not complexity. A perfect slow-groove lesson.' },
+  { id: 'on-the-road', title: 'On the Road Again', artist: 'Willie Nelson', year: 1980, genre: 'country', key: 'E', capo: 0, bpm: 96, difficulty: 'Beginner', chords: ['E','A','B7','G','D'],
+    strum: 'Upbeat travelin\' shuffle.',
+    notes: 'Bright, happy, easy. E-A-B7 with a quick G-D turnaround. Built for singing on long drives.' },
+  { id: 'take-it-easy', title: 'Take It Easy', artist: 'Eagles', year: 1972, genre: 'country', key: 'G', capo: 0, bpm: 138, difficulty: 'Beginner', chords: ['G','C','D','Em','Am'],
+    strum: 'Bright country-rock D-DU-UDU.',
+    notes: 'Quintessential laid-back country rock. G-C-G verse with an easy bounce. The "boom-chuck" bass-strum suits it well.' },
+  { id: 'wanted-dead', title: 'Wanted Dead or Alive', artist: 'Bon Jovi', year: 1986, genre: 'country', key: 'D', capo: 0, bpm: 132, difficulty: 'Intermediate', chords: ['D','Cadd9','G','Em','A'],
+    strum: 'The 12-string intro, then a cowboy-rock strum.',
+    notes: 'Half rock, half cowboy ballad. The Dsus-flavored intro is famous. Em-C-G-D drives the verse.' },
+  { id: 'must-have-been', title: 'Must Have Been Love', artist: 'Roxette', year: 1990, genre: 'country', key: 'C', capo: 0, bpm: 84, difficulty: 'Beginner', chords: ['C','F','G','Am','Em'],
+    strum: 'Slow ballad strum.',
+    notes: 'A pop ballad that sits nicely on acoustic. Standard C-major-key chords, slow and emotive.' },
+
+  // -- Blues --
+  { id: 'before-you-accuse', title: 'Before You Accuse Me', artist: 'Eric Clapton / Bo Diddley', year: 1957, genre: 'blues', key: 'E', capo: 0, bpm: 116, difficulty: 'Intermediate', chords: ['E','A','B7'],
+    strum: 'Standard 12-bar shuffle.',
+    notes: '12-bar blues in E. The single best song for drilling the I-IV-V blues form and the shuffle rhythm.' },
+  { id: 'crossroads', title: 'Crossroads', artist: 'Robert Johnson / Cream', year: 1936, genre: 'blues', key: 'A', capo: 0, bpm: 96, difficulty: 'Advanced', chords: ['A','D','E'],
+    strum: 'Delta blues shuffle or Cream-style rock.',
+    notes: 'The Delta blues cornerstone. 12-bar in A. Robert Johnson\'s original is fingerpicked; Cream electrified it. Either is a deep study.' },
+  { id: 'sweet-home-chicago', title: 'Sweet Home Chicago', artist: 'Robert Johnson', year: 1936, genre: 'blues', key: 'E', capo: 0, bpm: 112, difficulty: 'Intermediate', chords: ['E','A','B7'],
+    strum: '12-bar shuffle.',
+    notes: 'A blues standard everyone jams on. 12-bar in E. Learn the turnaround lick and you can sit in with any blues band.' },
+  { id: 'aint-no-sunshine', title: "Ain't No Sunshine", artist: 'Bill Withers', year: 1971, genre: 'blues', key: 'Am', capo: 0, bpm: 78, difficulty: 'Intermediate', chords: ['Am','Em','G','Dm'],
+    strum: 'Tight, syncopated minor groove.',
+    notes: 'Minor-key soul-blues. Am-Em-G verse. The groove and the rests are everything — silence is part of the song.' },
+  { id: 'the-thrill', title: 'The Thrill Is Gone', artist: 'B.B. King', year: 1969, genre: 'blues', key: 'Bm', capo: 0, bpm: 78, difficulty: 'Advanced', chords: ['Bm','Em','Gmaj7','F#7'],
+    strum: 'Slow minor blues. Space for lead lines.',
+    notes: 'A minor blues, not the standard 12-bar. The vehicle for B.B. King\'s singing-guitar leads. Advanced, but the chords are reachable.' },
+
+  // -- Variety / pop / easy hits --
+  { id: 'i-wont-back', title: "I Won't Back Down", artist: 'Tom Petty', year: 1989, genre: 'variety', key: 'Em', capo: 0, bpm: 110, difficulty: 'Beginner', chords: ['Em','D','G','C'],
+    strum: 'Steady, defiant D-DU-UDU.',
+    notes: 'Em-D-G verse, three more chords for the chorus. Simple, sturdy, and great for a confident beginner.' },
+  { id: 'last-kiss', title: 'Stand By Me (50s prog drill)', artist: 'practice etude', year: 2024, genre: 'variety', key: 'C', capo: 0, bpm: 60, difficulty: 'Beginner', chords: ['C','Am','F','G'],
+    strum: 'Slow 50s doo-wop.',
+    notes: 'A practice loop on the classic I-vi-IV-V (C-Am-F-G). Not a specific song — a drill for the most common progression in pop history.' },
+  { id: 'island-in-sun', title: 'Island in the Sun', artist: 'Weezer', year: 2001, genre: 'variety', key: 'Em', capo: 0, bpm: 116, difficulty: 'Beginner', chords: ['Em','Am','D','G','C'],
+    strum: 'Relaxed, sunny D-DU-UDU.',
+    notes: 'Em-Am-D-G loop. Breezy and easy. The "hip-hip" backing vocals are half the fun.' },
+  { id: 'banana-pancakes', title: 'Banana Pancakes', artist: 'Jack Johnson', year: 2005, genre: 'variety', key: 'G', capo: 0, bpm: 110, difficulty: 'Intermediate', chords: ['G','C','D','Em','Am'],
+    strum: 'Laid-back with muted percussive strums.',
+    notes: 'Jack Johnson\'s mellow groove relies on muting strings for a percussive "chk." A nice intro to right-hand muting.' },
+  { id: 'better-together', title: 'Better Together', artist: 'Jack Johnson', year: 2005, genre: 'variety', key: 'F', capo: 0, bpm: 84, difficulty: 'Intermediate', chords: ['F','Am','Bb','C','Dm','Gm'],
+    strum: 'Relaxed island shuffle.',
+    notes: 'Warm and jazzy with a few barre chords (F, Bb, Gm). A step up — good once open chords are comfortable.' },
+  { id: 'count-on-me', title: 'Count on Me', artist: 'Bruno Mars', year: 2010, genre: 'variety', key: 'C', capo: 0, bpm: 92, difficulty: 'Intermediate', chords: ['C','Em','Am','F','G','Dm'],
+    strum: 'Fingerpicked, gentle.',
+    notes: 'A sweet, fingerpicked tune. All open chords. The picking pattern is steady and friendly — a good fingerstyle stepping stone.' },
+  { id: 'i-m-yours', title: "I'm Yours", artist: 'Jason Mraz', year: 2008, genre: 'variety', key: 'B', capo: 4, bpm: 150, difficulty: 'Beginner', chords: ['G','D','Em','C'],
+    strum: 'Reggae-flavored upstroke skank.',
+    notes: 'Capo 4, then play G-D-Em-C all the way through. The bouncy offbeat strum is the lesson. One of the most-taught songs ever.' },
+  { id: 'sunday-morning', title: 'Sunday Morning', artist: 'Maroon 5', year: 2004, genre: 'variety', key: 'D', capo: 0, bpm: 96, difficulty: 'Intermediate', chords: ['Dm7','G7','Cmaj7','Fmaj7'],
+    strum: 'Smooth, jazzy bossa-nova feel.',
+    notes: 'A jazzier set of chords (m7, maj7) in a smooth ii-V loop. Lovely for introducing seventh-chord voicings.' },
+  { id: 'valerie', title: 'Valerie', artist: 'Amy Winehouse / The Zutons', year: 2006, genre: 'variety', key: 'E', capo: 0, bpm: 108, difficulty: 'Intermediate', chords: ['E','F#m','A','B','C#m'],
+    strum: 'Upbeat retro-soul strum.',
+    notes: 'Bright Motown-style changes. A few barre chords (F#m, B, C#m). Energetic and rewarding once the barres are solid.' },
+  { id: 'dancing-moon', title: 'Dance Me to the End of Love', artist: 'Leonard Cohen', year: 1984, genre: 'variety', key: 'Dm', capo: 0, bpm: 120, difficulty: 'Intermediate', chords: ['Dm','A','Gm','C','F','Bb'],
+    strum: 'Gypsy-waltz feel in 4/4.',
+    notes: 'A hypnotic minor-key Cohen tune with a klezmer flavor. Dm-A loop with a richer bridge. Atmospheric and distinctive.' },
+  { id: 'somewhere-rainbow', title: 'Over the Rainbow / Wonderful World (medley)', artist: 'Israel Kamakawiwoʻole', year: 1993, genre: 'variety', key: 'C', capo: 0, bpm: 70, difficulty: 'Intermediate', chords: ['C','Em','F','G','Am','Dm'],
+    strum: 'Gentle, often played on ukulele — translates to guitar.',
+    notes: 'Iz\'s beloved medley. Played fingerstyle or with soft strums. The C-Em-F-G movement is warm and welcoming.' },
+  { id: 'a-team', title: 'The A Team', artist: 'Ed Sheeran', year: 2011, genre: 'variety', key: 'A', capo: 2, bpm: 85, difficulty: 'Intermediate', chords: ['G','D','Em','C','Am'],
+    strum: 'Percussive fingerpicking with body taps.',
+    notes: 'Capo 2. Sheeran\'s percussive fingerstyle is the whole feel. Start with simple picking before adding the taps.' },
+  { id: 'photograph', title: 'Photograph', artist: 'Ed Sheeran', year: 2014, genre: 'variety', key: 'E', capo: 0, bpm: 108, difficulty: 'Intermediate', chords: ['Cadd9','G','D','Em'],
+    strum: 'Looping fingerpicked arpeggio (capo 0 or higher).',
+    notes: 'A repeating four-chord fingerpicked loop. Gentle and steady — a strong fingerstyle practice piece.' }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentView = 'home';
+let lessonProgress = {}; // { lessonId: stepIdx }
+let completedLessons = new Set();
+let currentScale = 'minor-pent';
+let currentGenre = 'all';
+let metro = { running: false, bpm: 80, beat: 0, intervalId: null, taps: [] };
+let audioCtx = null;
+
+/* ============================================================
+   AUDIO
+   ============================================================ */
+let audioUnlocked = false;
+let audioStatus = 'idle'; // idle | running | blocked
+
+function ensureAudio() {
+  if (!audioCtx) {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) { audioStatus = 'blocked'; updateAudioBadge(); return null; }
+      audioCtx = new AC();
+    } catch (e) {
+      audioStatus = 'blocked';
+      updateAudioBadge();
+      return null;
+    }
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().then(() => {
+      audioStatus = audioCtx.state === 'running' ? 'running' : 'idle';
+      updateAudioBadge();
+    }).catch(() => {});
+  } else if (audioCtx.state === 'running') {
+    audioStatus = 'running';
+  }
+  return audioCtx;
+}
+
+// Unlock audio on the very first user interaction anywhere (required by mobile browsers).
+function unlockAudio() {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const doResume = () => {
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => { audioStatus = 'running'; updateAudioBadge(); }).catch(() => {});
+    }
+    // Play a tiny silent buffer to fully unlock on iOS.
+    try {
+      const buffer = ctx.createBuffer(1, 1, 22050);
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      src.connect(ctx.destination);
+      src.start(0);
+    } catch (e) {}
+    if (ctx.state === 'running') { audioStatus = 'running'; updateAudioBadge(); }
+  };
+  doResume();
+  if (!audioUnlocked) {
+    audioUnlocked = true;
+    // Confirm running shortly after; iOS sometimes flips state async.
+    setTimeout(() => {
+      if (audioCtx && audioCtx.state === 'running') { audioStatus = 'running'; updateAudioBadge(); }
+    }, 120);
+  }
+}
+['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
+  document.addEventListener(evt, unlockAudio, { passive: true });
+});
+
+// Visible audio status badge so the user can see whether sound is on.
+function updateAudioBadge() {
+  const badge = document.getElementById('audio-badge');
+  if (!badge) return;
+  if (audioStatus === 'running') {
+    badge.innerHTML = '<i class="fa-solid fa-volume-high"></i> Sound on';
+    badge.style.background = 'var(--ok)';
+    badge.style.color = 'var(--bg)';
+  } else if (audioStatus === 'blocked') {
+    badge.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> Sound blocked here — open in browser';
+    badge.style.background = 'var(--accent2)';
+    badge.style.color = '#fff';
+  } else {
+    badge.innerHTML = '<i class="fa-solid fa-volume-low"></i> Tap any note to enable sound';
+    badge.style.background = 'var(--panel-2)';
+    badge.style.color = 'var(--ink-soft)';
+  }
+}
+
+const NOTE_FREQ = { // A4 = 440
+  'C2':65.41,'D2':73.42,'E2':82.41,'F2':87.31,'G2':98.00,'A2':110.00,'B2':123.47,
+  'C3':130.81,'D3':146.83,'E3':164.81,'F3':174.61,'G3':196.00,'A3':220.00,'B3':246.94,
+  'C4':261.63,'D4':293.66,'E4':329.63,'F4':349.23,'G4':392.00,'A4':440.00,'B4':493.88,
+  'C5':523.25,'D5':587.33,'E5':659.25,'F5':698.46,'G5':783.99,'A5':880.00,'B5':987.77,
+  'F#2':92.50,'F#3':185.00,'F#4':369.99,'G#2':103.83,'G#3':207.65,'G#4':415.30,
+  'C#3':138.59,'C#4':277.18,'C#5':554.37,'D#3':155.56,'D#4':311.13,'A#2':116.54,'A#3':233.08,'A#4':466.16,
+  'Bb2':116.54,'Eb3':155.56,'Eb4':311.13
+};
+
+// A plucked-string-ish tone: fundamental + a quieter octave harmonic, fast attack, slow decay.
+function playFreq(freq, duration = 1.4, type = 'triangle', delay = 0, volume = 0.22) {
+  const ctx = ensureAudio(); if (!ctx) return;
+  // If suspended (very first interaction), resume then retry once.
+  if (ctx.state === 'suspended') {
+    ctx.resume().then(() => {
+      audioStatus = 'running'; updateAudioBadge();
+      playFreq(freq, duration, type, delay, volume);
+    }).catch(() => {});
+    return;
+  }
+  audioStatus = 'running';
+  const start = ctx.currentTime + delay + 0.005;
+
+  // Master gain for this note
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.0001, start);
+  master.gain.exponentialRampToValueAtTime(volume, start + 0.008); // fast attack
+  master.gain.exponentialRampToValueAtTime(0.0001, start + duration); // decay
+  master.connect(ctx.destination);
+
+  // Fundamental
+  const osc1 = ctx.createOscillator();
+  osc1.type = type;
+  osc1.frequency.setValueAtTime(freq, start);
+  const g1 = ctx.createGain();
+  g1.gain.value = 0.7;
+  osc1.connect(g1); g1.connect(master);
+
+  // Octave harmonic for body
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(freq * 2, start);
+  const g2 = ctx.createGain();
+  g2.gain.value = 0.18;
+  osc2.connect(g2); g2.connect(master);
+
+  osc1.start(start); osc1.stop(start + duration + 0.05);
+  osc2.start(start); osc2.stop(start + duration + 0.05);
+}
+
+function playTone(noteName) {
+  const f = NOTE_FREQ[noteName];
+  if (!f) return;
+  playFreq(f, 1.8, 'triangle', 0, 0.28);
+}
+
+// Explicit sound test triggered by the badge — forces unlock then strums G.
+function testSound() {
+  unlockAudio();
+  const ctx = ensureAudio();
+  if (!ctx) { toast('Audio is blocked in this view. Open the file in a browser.', 'rust'); return; }
+  if (ctx.state === 'suspended') {
+    ctx.resume().then(() => { audioStatus='running'; updateAudioBadge(); strumChord('G'); });
+  } else {
+    audioStatus = 'running'; updateAudioBadge();
+    strumChord('G');
+  }
+  setTimeout(() => {
+    if (audioCtx && audioCtx.state === 'running') toast('Sound is on. You should have heard a G chord.', 'ok');
+    else toast('No sound — try opening the file directly in a browser.', 'rust');
+  }, 300);
+}
+
+// Open string base frequencies (low E to high E)
+const OPEN_STRINGS = [
+  { name: 'E2', freq: 82.41 },
+  { name: 'A2', freq: 110.00 },
+  { name: 'D3', freq: 146.83 },
+  { name: 'G3', freq: 196.00 },
+  { name: 'B3', freq: 246.94 },
+  { name: 'E4', freq: 329.63 }
+];
+
+function frettedFreq(stringIdx, fret) {
+  return OPEN_STRINGS[stringIdx].freq * Math.pow(2, fret/12);
+}
+
+function strumChord(name) {
+  const ch = CHORDS[name];
+  if (!ch) return;
+  ensureAudio();
+  // Strum low to high, slight delay between strings
+  ch.pos.forEach((fret, idx) => {
+    if (fret < 0) return;
+    const f = frettedFreq(idx, fret);
+    playFreq(f, 1.6, 'triangle', idx * 0.03, 0.16);
+  });
+}
+
+function metroClick(accent) {
+  const ctx = ensureAudio(); if (!ctx) return;
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(accent ? 1500 : 1000, now);
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(0.15, now + 0.005);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(now); osc.stop(now + 0.1);
+}
+
+/* ============================================================
+   SVG: CHORD DIAGRAM
+   ============================================================ */
+function chordSVG(chord, opts = {}) {
+  const size = opts.size || 'md'; // sm | md | lg
+  const W = size === 'sm' ? 90 : size === 'lg' ? 160 : 110;
+  const stringSpacing = W * 0.13;
+  const startX = (W - stringSpacing * 5) / 2;
+  const fretSpacing = stringSpacing * 0.95;
+  const startY = 30;
+  const H = startY + fretSpacing * 4 + 24;
+  
+  const fontSize = size === 'sm' ? 9 : size === 'lg' ? 12 : 10;
+  const dotR = size === 'sm' ? 6 : size === 'lg' ? 10 : 8;
+  
+  // Find min fret (excluding 0 and -1) to determine if we need a fret indicator
+  const playedFrets = chord.pos.filter(f => f > 0);
+  const minFret = playedFrets.length ? Math.min(...playedFrets) : 1;
+  const maxFret = playedFrets.length ? Math.max(...playedFrets) : 1;
+  const offsetFret = (maxFret > 4 || minFret > 3) ? minFret - 1 : 0;
+  
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" xmlns="http://www.w3.org/2000/svg">`;
+  
+  // Nut (thick line) or fret number indicator
+  if (offsetFret === 0) {
+    svg += `<rect x="${startX}" y="${startY}" width="${stringSpacing*5}" height="3" fill="#ECEFF4"/>`;
+  } else {
+    svg += `<text x="${startX - 8}" y="${startY + 12}" fill="#98A2B3" font-size="${fontSize}" font-family="JetBrains Mono" text-anchor="end">${offsetFret + 1}fr</text>`;
+  }
+  
+  // Frets
+  for (let i = 0; i <= 4; i++) {
+    const y = startY + i * fretSpacing;
+    svg += `<line x1="${startX}" y1="${y}" x2="${startX + stringSpacing*5}" y2="${y}" stroke="#98A2B3" stroke-width="${offsetFret===0 && i===0 ? 0 : 1}" opacity="0.5"/>`;
+  }
+  // Strings
+  for (let s = 0; s < 6; s++) {
+    const x = startX + s * stringSpacing;
+    svg += `<line x1="${x}" y1="${startY}" x2="${x}" y2="${startY + fretSpacing*4}" stroke="#98A2B3" stroke-width="1" opacity="0.6"/>`;
+  }
+  
+  // Above-nut markers (O or X)
+  chord.pos.forEach((f, s) => {
+    const x = startX + s * stringSpacing;
+    if (f === -1) {
+      svg += `<text x="${x}" y="${startY - 8}" fill="#98A2B3" font-size="${fontSize}" font-family="Inter" text-anchor="middle" font-weight="600">×</text>`;
+    } else if (f === 0) {
+      svg += `<circle cx="${x}" cy="${startY - 10}" r="${dotR*0.55}" fill="none" stroke="#ECEFF4" stroke-width="1.5"/>`;
+    }
+  });
+  
+  // Barre
+  if (chord.barre) {
+    const b = chord.barre;
+    const x1 = startX + b.from * stringSpacing;
+    const x2 = startX + b.to * stringSpacing;
+    const y = startY + (b.fret - offsetFret - 0.5) * fretSpacing;
+    svg += `<rect x="${x1 - dotR*0.6}" y="${y - dotR*0.6}" width="${x2 - x1 + dotR*1.2}" height="${dotR*1.2}" rx="${dotR*0.6}" fill="#46C9B0" opacity="0.95"/>`;
+  }
+  
+  // Finger dots
+  chord.pos.forEach((f, s) => {
+    if (f <= 0) return;
+    const x = startX + s * stringSpacing;
+    const y = startY + (f - offsetFret - 0.5) * fretSpacing;
+    const finger = chord.fin ? chord.fin[s] : 0;
+    // Skip dot if covered by barre at this fret
+    const onBarre = chord.barre && chord.barre.fret === f && s >= chord.barre.from && s <= chord.barre.to;
+    if (onBarre && finger === 1) return;
+    svg += `<circle cx="${x}" cy="${y}" r="${dotR}" fill="#46C9B0"/>`;
+    if (finger > 0 && size !== 'sm') {
+      svg += `<text x="${x}" y="${y + dotR*0.42}" fill="#12151C" font-size="${fontSize*0.95}" font-family="Inter" font-weight="700" text-anchor="middle">${finger}</text>`;
+    }
+  });
+  
+  svg += `</svg>`;
+  return svg;
+}
+
+/* ============================================================
+   SVG: FRETBOARD (for scales)
+   ============================================================ */
+function fretboardSVG(box) {
+  const stringCount = 6;
+  const fretsToShow = 5; // visible frets
+  const startFret = box.startFret;
+  
+  const W = 540, H = 170;
+  const padX = 40, padY = 25;
+  const innerW = W - padX*2;
+  const innerH = H - padY*2;
+  const fretW = innerW / fretsToShow;
+  const stringH = innerH / (stringCount - 1);
+  
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" xmlns="http://www.w3.org/2000/svg">`;
+  
+  // Background fretboard tint
+  svg += `<rect x="${padX}" y="${padY}" width="${innerW}" height="${innerH}" fill="#232936" rx="4"/>`;
+  
+  // Fret lines
+  for (let i = 0; i <= fretsToShow; i++) {
+    const x = padX + i * fretW;
+    svg += `<line x1="${x}" y1="${padY}" x2="${x}" y2="${padY + innerH}" stroke="#3D4757" stroke-width="${i===0?3:1}"/>`;
+    if (i > 0) {
+      svg += `<text x="${x - fretW/2}" y="${H - 5}" fill="#6B7689" font-size="11" font-family="JetBrains Mono" text-anchor="middle">${startFret + i}</text>`;
+    }
+  }
+  // String lines (high E top → low E bottom in diagram, but let's do low E top for readability)
+  // Actually for tab/scale view: low E bottom is standard. Let's flip.
+  for (let s = 0; s < stringCount; s++) {
+    const y = padY + s * stringH;
+    // string 0 = high E (top), string 5 = low E (bottom)... or reverse?
+    // Convention: tab has high E on TOP. Scale boxes usually drawn with low E on bottom.
+    svg += `<line x1="${padX}" y1="${y}" x2="${padX + innerW}" y2="${y}" stroke="#6B7689" stroke-width="${1 + (5-s)*0.15}" opacity="0.8"/>`;
+  }
+  // String labels on left
+  const stringNames = ['E','B','G','D','A','E']; // high to low (top to bottom)
+  stringNames.forEach((n, i) => {
+    svg += `<text x="${padX - 10}" y="${padY + i * stringH + 4}" fill="#98A2B3" font-size="11" font-family="JetBrains Mono" text-anchor="end">${n}</text>`;
+  });
+  
+  // Fret markers (3, 5, 7, 9, 12, 15, 17, etc.) — show if visible
+  const markerFrets = [3, 5, 7, 9, 12, 15, 17, 19, 21];
+  markerFrets.forEach(mf => {
+    if (mf > startFret && mf <= startFret + fretsToShow) {
+      const x = padX + (mf - startFret - 0.5) * fretW;
+      if (mf === 12) {
+        // Double dot
+        svg += `<circle cx="${x}" cy="${padY + innerH*0.3}" r="3" fill="#3D4757"/>`;
+        svg += `<circle cx="${x}" cy="${padY + innerH*0.7}" r="3" fill="#3D4757"/>`;
+      } else {
+        svg += `<circle cx="${x}" cy="${padY + innerH/2}" r="3" fill="#3D4757"/>`;
+      }
+    }
+  });
+  
+  // Dots — stringDots is [string (0=lowE), fret, note, isRoot]
+  // BUT we draw with high E on top (string idx 0 in drawing = high E)
+  // So drawing y for low E string (data index 0) = stringH * 5
+  box.stringDots.forEach(([dataStringIdx, fret, note, isRoot]) => {
+    if (fret <= startFret || fret > startFret + fretsToShow) return;
+    const drawStringIdx = 5 - dataStringIdx; // flip
+    const y = padY + drawStringIdx * stringH;
+    const x = padX + (fret - startFret - 0.5) * fretW;
+    const r = 13;
+    const fill = isRoot ? '#FF7A5C' : '#46C9B0';
+    const textColor = '#12151C';
+    svg += `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="#12151C" stroke-width="1.5"/>`;
+    svg += `<text x="${x}" y="${y + 4}" fill="${textColor}" font-size="11" font-family="Inter" font-weight="700" text-anchor="middle">${note}</text>`;
+  });
+  
+  svg += `</svg>`;
+  return svg;
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderLessons() {
+  const grid = document.getElementById('lessons-grid');
+  grid.innerHTML = LESSONS.map(l => {
+    const totalSteps = l.steps.length;
+    const done = lessonProgress[l.id] || 0;
+    const pct = Math.round((done / totalSteps) * 100);
+    const complete = completedLessons.has(l.id);
+    return `
+      <button onclick="openLesson('${l.id}')" class="panel rounded-2xl p-5 text-left chord-card relative overflow-hidden">
+        <div class="flex items-start justify-between mb-3">
+          <div class="mono text-xs amber">${l.num}</div>
+          <div class="text-[10px] ink-soft tracking-wider">${l.level} · ${l.duration}</div>
+        </div>
+        <h3 class="display text-xl font-bold mb-1 leading-tight">${l.title}</h3>
+        <p class="text-xs ink-soft mb-4">${l.desc}</p>
+        <div class="flex items-center gap-3">
+          <div class="flex-1 h-1.5 panel-2 rounded-full overflow-hidden">
+            <div class="h-full transition-all" style="width: ${pct}%; background: ${complete ? '#8BD46F' : '#46C9B0'}"></div>
+          </div>
+          <div class="text-xs mono ${complete ? 'text-emerald-400' : 'ink-soft'}">${complete ? '✓' : `${done}/${totalSteps}`}</div>
+        </div>
+      </button>
+    `;
+  }).join('');
+}
+
+function renderChords() {
+  const groups = {
+    'chords-first': ['Em','Am','D'],
+    'chords-open':  ['G','C','E','A','Dm','F'],
+    'chords-7':     ['G7','D7','A7','E7','C7','B7','Em7','Am7','Dm7'],
+    'chords-sus':   ['Cadd9','Dsus2','Dsus4','Asus2','Asus4','A7sus4'],
+    'chords-barre': ['F','Bm','F#m','Bb','B','F#','Gm','Eb']
+  };
+  Object.entries(groups).forEach(([gid, names]) => {
+    const el = document.getElementById(gid);
+    if (!el) return;
+    el.innerHTML = names.map(n => `
+      <button onclick="openChord('${n}')" class="panel rounded-xl p-3 chord-card flex flex-col items-center">
+        ${chordSVG(CHORDS[n], { size: 'md' })}
+        <div class="mt-1 display font-bold">${n}</div>
+      </button>
+    `).join('');
+  });
+}
+
+function renderCAGED() {
+  const grid = document.getElementById('caged-grid');
+  grid.innerHTML = CAGED_SHAPES.map(s => `
+    <div class="panel rounded-2xl p-4">
+      <div class="display text-3xl font-bold amber">${s.label}</div>
+      <div class="text-xs ink-soft mb-3">${s.name} · Root: ${s.rootString}</div>
+      <div class="flex justify-center mb-3">${chordSVG(s, { size: 'md' })}</div>
+      <p class="text-xs ink-soft leading-relaxed">${s.desc}</p>
+    </div>
+  `).join('');
+}
+
+function renderTheory() {
+  const el = document.getElementById('circle-of-fifths');
+  if (!el || el.dataset.built) return;
+  el.innerHTML = circleOfFifthsSVG();
+  el.dataset.built = '1';
+}
+
+function circleOfFifthsSVG() {
+  // Outer ring = major keys, inner ring = relative minors
+  const majors = ['C','G','D','A','E','B','F♯','D♭','A♭','E♭','B♭','F'];
+  const minors = ['Am','Em','Bm','F♯m','C♯m','G♯m','D♯m','B♭m','Fm','Cm','Gm','Dm'];
+  const W = 340, cx = W/2, cy = W/2;
+  const rOut = 150, rOutLabel = 128, rInLabel = 92, rInner = 70;
+  let svg = `<svg viewBox="0 0 ${W} ${W}" width="100%" style="max-width:340px" xmlns="http://www.w3.org/2000/svg">`;
+  // Rings
+  svg += `<circle cx="${cx}" cy="${cy}" r="${rOut}" fill="none" stroke="#323A48" stroke-width="1"/>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="${rInner+38}" fill="none" stroke="#323A48" stroke-width="1"/>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="${rInner}" fill="#1A1F29" stroke="#323A48" stroke-width="1"/>`;
+  svg += `<text x="${cx}" y="${cy-4}" fill="#98A2B3" font-size="10" font-family="Inter" text-anchor="middle">moving by</text>`;
+  svg += `<text x="${cx}" y="${cy+9}" fill="#46C9B0" font-size="11" font-family="Inter" font-weight="700" text-anchor="middle">perfect 5ths</text>`;
+
+  for (let i = 0; i < 12; i++) {
+    // 12 o'clock = top, clockwise. C at top.
+    const ang = (i / 12) * 2 * Math.PI - Math.PI/2;
+    // Spokes
+    const sx = cx + Math.cos(ang) * (rInner);
+    const sy = cy + Math.sin(ang) * (rInner);
+    const ex = cx + Math.cos(ang) * rOut;
+    const ey = cy + Math.sin(ang) * rOut;
+    svg += `<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="#323A48" stroke-width="1"/>`;
+    // Major label (outer)
+    const mxo = cx + Math.cos(ang) * rOutLabel;
+    const myo = cy + Math.sin(ang) * rOutLabel;
+    const isC = i === 0;
+    svg += `<circle cx="${mxo}" cy="${myo}" r="17" fill="${isC ? '#46C9B0' : '#232936'}" stroke="#3D4757" stroke-width="1"/>`;
+    svg += `<text x="${mxo}" y="${myo+4.5}" fill="${isC ? '#12151C' : '#ECEFF4'}" font-size="13" font-family="Space Grotesk" font-weight="700" text-anchor="middle">${majors[i]}</text>`;
+    // Minor label (inner)
+    const mxi = cx + Math.cos(ang) * rInLabel;
+    const myi = cy + Math.sin(ang) * rInLabel;
+    svg += `<text x="${mxi}" y="${myi+3.5}" fill="#8BD46F" font-size="10" font-family="JetBrains Mono" text-anchor="middle">${minors[i]}</text>`;
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+// Scale key state (default A, like the original page)
+let scaleRoot = 9; // pitch class A
+
+// Display info for each scale type used on the Scales page
+const SCALE_PAGE_INFO = {
+  'minor-pent':  { degrees: '1 ♭3 4 5 ♭7',     blurb: 'Five notes. The scale behind nearly every rock and blues solo. Almost impossible to play a wrong note.' },
+  'major-pent':  { degrees: '1 2 3 5 6',        blurb: 'Bright, sweet, country and folk. The major pentatonic — same shapes as minor pentatonic, started three frets lower.' },
+  'blues':       { degrees: '1 ♭3 4 ♭5 5 ♭7',  blurb: 'Minor pentatonic plus the "blue note" (♭5). That one extra note adds all the grit.' },
+  'major':       { degrees: '1 2 3 4 5 6 7',    blurb: 'The full seven-note major scale — the foundation of Western music. Happy, complete, the ruler everything is measured against.' },
+  'minor':       { degrees: '1 2 ♭3 4 5 ♭6 ♭7', blurb: 'The natural minor scale (Aeolian). Seven notes, darker and sadder than major. The full version of the minor pentatonic.' },
+  'dorian':      { degrees: '1 2 ♭3 4 5 6 ♭7',  blurb: 'A minor scale with a raised 6th. Jazzy, folky, hopeful-sad. Think Santana and a lot of modal jams.' },
+  'mixolydian':  { degrees: '1 2 3 4 5 6 ♭7',   blurb: 'A major scale with a flattened 7th. The bluesy, rock major sound — dominant chords and Southern rock.' },
+  'harmonic-min':{ degrees: '1 2 ♭3 4 5 ♭6 7',  blurb: 'Natural minor with a raised 7th. Exotic, dramatic, classical and metal. That big leap to the 7th is the signature.' }
+};
+
+// Generate the note set (pitch class -> interval) for a scale in the current key
+function scalePcMap(scaleKey, root) {
+  const ints = SCALE_FORMULAS[scaleKey].ints;
+  const map = {};
+  ints.forEach(iv => {
+    const pc = (root + iv) % 12;
+    if (!(pc in map)) map[pc] = iv;
+  });
+  return map;
+}
+
+// Map a CAGED box to the fret window where it sits for the current root.
+// Returns boxes as {name, cagedShape, startFret} positioned across the neck.
+function scaleBoxesForRoot(root) {
+  // The 5 CAGED positions, anchored by where the root appears on the low E string.
+  // Root on low E (string pc 4 = E) at fret (root - 4 + 12) % 12, plus octaves.
+  // We lay out 5 boxes climbing the neck, each ~3 frets wide, E-shape first.
+  const lowErootFret = ((root - 4) % 12 + 12) % 12; // 0-11
+  // Box 1 (E shape) starts ~2 frets below that root so the index finger lands near it.
+  let b1 = lowErootFret - 0; // E-shape: root is at the low fret of the box
+  if (b1 < 1) b1 += 12; // keep boxes on the neck, not at the nut where shapes are awkward
+  return [
+    { name: 'Box 1', cagedShape: 'E shape', startFret: b1 - 1 },
+    { name: 'Box 2', cagedShape: 'D shape', startFret: b1 + 2 },
+    { name: 'Box 3', cagedShape: 'C shape', startFret: b1 + 4 },
+    { name: 'Box 4', cagedShape: 'A shape', startFret: b1 + 7 },
+    { name: 'Box 5', cagedShape: 'G shape', startFret: b1 + 9 }
+  ];
+}
+
+function renderScaleRootButtons() {
+  const wrap = document.getElementById('scale-root-buttons');
+  if (!wrap) return;
+  wrap.innerHTML = NOTES_SHARP.map((n, pc) => `
+    <button onclick="setScaleRoot(${pc})"
+      class="px-3 py-1.5 rounded-lg text-xs font-bold mono transition-colors ${pc===scaleRoot?'':'panel-2'}"
+      style="${pc===scaleRoot?'background: var(--amber); color: #12151C;':''}">${n}</button>
+  `).join('');
+}
+
+function setScaleRoot(pc) { scaleRoot = pc; renderScales(); }
+
+function renderScales() {
+  // Highlight active scale button
+  document.querySelectorAll('.scale-btn').forEach(b => {
+    if (b.dataset.scale === currentScale) {
+      b.style.background = 'var(--amber)'; b.style.color = '#12151C';
+    } else { b.style.background = ''; b.style.color = ''; }
+  });
+  renderScaleRootButtons();
+
+  const flatRoots = [1,3,5,8,10];
+  const preferFlat = flatRoots.includes(scaleRoot);
+  const rootName = pcName(scaleRoot, preferFlat);
+  const info = SCALE_PAGE_INFO[currentScale] || { degrees: '', blurb: '' };
+  const scaleName = SCALE_FORMULAS[currentScale].name;
+
+  // Title + notes line
+  document.getElementById('scale-title').textContent = `${rootName} ${scaleName}`;
+  const pcMap = scalePcMap(currentScale, scaleRoot);
+  const orderedNotes = Object.keys(pcMap).map(Number).sort((a,b)=>pcMap[a]-pcMap[b]).map(pc=>pcName(pc, preferFlat));
+  document.getElementById('scale-notes-line').textContent =
+    `${orderedNotes.join(' · ')}    (degrees: ${info.degrees})`;
+
+  // Full neck
+  document.getElementById('scale-fullneck').innerHTML =
+    scaleFullNeckSVG(pcMap, preferFlat);
+
+  // CAGED boxes
+  const boxes = scaleBoxesForRoot(scaleRoot);
+  const wrap = document.getElementById('scales-grid');
+  wrap.innerHTML = `
+    <div class="panel rounded-2xl p-5">
+      <p class="text-sm ink-soft leading-relaxed">${info.blurb}</p>
+    </div>
+  ` + boxes.map(box => `
+    <div class="panel rounded-2xl p-5">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div>
+          <div class="display text-lg font-bold">${box.name}</div>
+          <div class="text-xs ink-soft">CAGED: ${box.cagedShape} · frets ${box.startFret+1}–${box.startFret+5}</div>
+        </div>
+      </div>
+      <div class="overflow-x-auto h-scroll">${scaleBoxSVG(pcMap, box, preferFlat)}</div>
+    </div>
+  `).join('');
+}
+
+// Full-neck SVG for a scale (frets 0-15, all strings)
+function scaleFullNeckSVG(pcMap, preferFlat) {
+  const FRETS = 15, stringCount = 6;
+  const W = 920, H = 200;
+  const padL = 46, padR = 18, padT = 20, padB = 26;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const fretW = innerW / FRETS, stringH = innerH / (stringCount - 1);
+  const openNotes = ['E','B','G','D','A','E']; // top(high E) to bottom(low E)
+  const stringPcs = [4,11,7,2,9,4]; // high E, B, G, D, A, low E
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:780px" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<rect x="${padL}" y="${padT}" width="${innerW}" height="${innerH}" fill="#232936" rx="4"/>`;
+  svg += `<rect x="${padL-3}" y="${padT}" width="4" height="${innerH}" fill="#ECEFF4"/>`;
+  for (let f=1; f<=FRETS; f++){
+    const x = padL + f*fretW;
+    svg += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+innerH}" stroke="#3D4757" stroke-width="1"/>`;
+    svg += `<text x="${padL+(f-0.5)*fretW}" y="${H-8}" fill="#6B7689" font-size="10" font-family="JetBrains Mono" text-anchor="middle">${f}</text>`;
+  }
+  [3,5,7,9,15].forEach(mf=>{ const x=padL+(mf-0.5)*fretW; svg+=`<circle cx="${x}" cy="${padT+innerH/2}" r="3.5" fill="#3D4757"/>`; });
+  const x12=padL+(12-0.5)*fretW;
+  svg+=`<circle cx="${x12}" cy="${padT+innerH*0.28}" r="3.5" fill="#3D4757"/><circle cx="${x12}" cy="${padT+innerH*0.72}" r="3.5" fill="#3D4757"/>`;
+  for (let s=0; s<stringCount; s++){
+    const y = padT + s*stringH;
+    svg += `<line x1="${padL}" y1="${y}" x2="${padL+innerW}" y2="${y}" stroke="#6B7689" stroke-width="${1+s*0.18}" opacity="0.85"/>`;
+    svg += `<text x="${padL-26}" y="${y+4}" fill="#98A2B3" font-size="11" font-family="JetBrains Mono" text-anchor="middle">${openNotes[s]}</text>`;
+  }
+  for (let s=0; s<stringCount; s++){
+    const y = padT + s*stringH;
+    const openPc = stringPcs[s];
+    for (let f=0; f<=FRETS; f++){
+      const pc = (openPc+f)%12;
+      if (pc in pcMap){
+        const isRoot = pcMap[pc]===0;
+        const x = f===0 ? padL-26 : padL+(f-0.5)*fretW;
+        const freq = (OPEN_STRINGS[5-s].freq * Math.pow(2, f/12)).toFixed(2);
+        svg += `<circle cx="${x}" cy="${y}" r="11" fill="${isRoot?'#FF7A5C':'#46C9B0'}" stroke="#12151C" stroke-width="1.5" style="cursor:pointer" onclick="playFreq(${freq},1.2,'triangle',0,0.16)"/>`;
+        svg += `<text x="${x}" y="${y+3.5}" fill="#12151C" font-size="9" font-family="Inter" font-weight="700" text-anchor="middle" style="pointer-events:none">${pcName(pc,preferFlat)}</text>`;
+      }
+    }
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+// Single CAGED-box SVG: a 5-fret window of the scale
+function scaleBoxSVG(pcMap, box, preferFlat) {
+  const startFret = box.startFret, FRETS = 5, stringCount = 6;
+  const W = 540, H = 175;
+  const padL = 40, padR = 16, padT = 22, padB = 26;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const fretW = innerW / FRETS, stringH = innerH / (stringCount - 1);
+  const openNotes = ['E','B','G','D','A','E'];
+  const stringPcs = [4,11,7,2,9,4];
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<rect x="${padL}" y="${padT}" width="${innerW}" height="${innerH}" fill="#232936" rx="4"/>`;
+  for (let i=0; i<=FRETS; i++){
+    const x = padL + i*fretW;
+    svg += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+innerH}" stroke="#3D4757" stroke-width="${i===0&&startFret===0?3:1}"/>`;
+    if (i>0) svg += `<text x="${padL+(i-0.5)*fretW}" y="${H-7}" fill="#6B7689" font-size="11" font-family="JetBrains Mono" text-anchor="middle">${startFret+i}</text>`;
+  }
+  [3,5,7,9,12,15].forEach(mf=>{ if(mf>startFret&&mf<=startFret+FRETS){ const x=padL+(mf-startFret-0.5)*fretW;
+    if(mf===12){ svg+=`<circle cx="${x}" cy="${padT+innerH*0.3}" r="3" fill="#3D4757"/><circle cx="${x}" cy="${padT+innerH*0.7}" r="3" fill="#3D4757"/>`; }
+    else svg+=`<circle cx="${x}" cy="${padT+innerH/2}" r="3" fill="#3D4757"/>`; } });
+  for (let s=0; s<stringCount; s++){
+    const y = padT + s*stringH;
+    svg += `<line x1="${padL}" y1="${y}" x2="${padL+innerW}" y2="${y}" stroke="#6B7689" stroke-width="${1+s*0.18}" opacity="0.85"/>`;
+    svg += `<text x="${padL-11}" y="${y+4}" fill="#98A2B3" font-size="11" font-family="JetBrains Mono" text-anchor="end">${openNotes[s]}</text>`;
+  }
+  for (let s=0; s<stringCount; s++){
+    const y = padT + s*stringH;
+    const openPc = stringPcs[s];
+    for (let f=startFret; f<=startFret+FRETS; f++){
+      if (f<0) continue;
+      const pc = (openPc+f)%12;
+      if (pc in pcMap){
+        const isRoot = pcMap[pc]===0;
+        const x = padL+(f-startFret-0.5)*fretW;
+        if (f-startFret-0.5 < 0) continue;
+        const freq = (OPEN_STRINGS[5-s].freq * Math.pow(2, f/12)).toFixed(2);
+        svg += `<circle cx="${x}" cy="${y}" r="12.5" fill="${isRoot?'#FF7A5C':'#46C9B0'}" stroke="#12151C" stroke-width="1.5" style="cursor:pointer" onclick="playFreq(${freq},1.2,'triangle',0,0.16)"/>`;
+        svg += `<text x="${x}" y="${y+3.5}" fill="#12151C" font-size="10" font-family="Inter" font-weight="700" text-anchor="middle" style="pointer-events:none">${pcName(pc,preferFlat)}</text>`;
+      }
+    }
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+function renderSongs() {
+  const searchInput = document.getElementById('song-search');
+  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+  
+  let list = SONGS;
+  if (currentGenre !== 'all') list = list.filter(s => s.genre === currentGenre);
+  if (query) {
+    list = list.filter(s => {
+      return s.title.toLowerCase().includes(query)
+          || s.artist.toLowerCase().includes(query)
+          || s.key.toLowerCase() === query
+          || s.chords.some(c => c.toLowerCase() === query)
+          || s.chords.some(c => c.toLowerCase().includes(query));
+    });
+  }
+  
+  document.querySelectorAll('.genre-btn').forEach(b => {
+    if (b.dataset.genre === currentGenre) {
+      b.style.background = 'var(--amber)';
+      b.style.color = '#12151C';
+    } else {
+      b.style.background = '';
+      b.style.color = '';
+    }
+  });
+  
+  const countEl = document.getElementById('song-count');
+  if (countEl) {
+    const total = SONGS.length;
+    countEl.textContent = `${list.length}${list.length !== total ? ` of ${total}` : ''} song${list.length === 1 ? '' : 's'}`;
+  }
+  
+  const grid = document.getElementById('songs-grid');
+  const empty = document.getElementById('songs-empty');
+  if (list.length === 0) {
+    grid.innerHTML = '';
+    if (empty) empty.classList.remove('hidden');
+    return;
+  }
+  if (empty) empty.classList.add('hidden');
+  
+  grid.innerHTML = list.map(s => `
+    <button onclick="openSong('${s.id}')" class="panel rounded-2xl p-5 text-left song-card">
+      <div class="flex items-start justify-between mb-3">
+        <div class="eyebrow">${s.genre.replace('-',' ')}</div>
+        <div class="text-[10px] mono ink-soft">${s.year}</div>
+      </div>
+      <h3 class="display text-lg font-bold leading-tight">${s.title}</h3>
+      <div class="text-xs ink-soft mt-1">${s.artist}</div>
+      <div class="flex flex-wrap gap-1.5 mt-4">
+        ${s.chords.slice(0, 5).map(c => `<span class="text-[10px] mono px-1.5 py-0.5 panel-2 rounded">${c}</span>`).join('')}
+        ${s.chords.length > 5 ? `<span class="text-[10px] mono px-1.5 py-0.5 ink-soft">+${s.chords.length - 5}</span>` : ''}
+      </div>
+      <div class="flex items-center gap-3 mt-4 text-[10px] ink-soft mono">
+        <span><i class="fa-solid fa-key"></i> ${s.key}</span>
+        <span><i class="fa-solid fa-gauge"></i> ${s.bpm} BPM</span>
+        ${s.capo > 0 ? `<span><i class="fa-solid fa-grip-lines"></i> Capo ${s.capo}</span>` : ''}
+      </div>
+    </button>
+  `).join('');
+}
+
+// Featured first-song picks for the home page
+const HOME_FEATURED = ['knockin','bad-moon','horse-no-name','three-little-birds','jolene','sweet-home'];
+
+function renderHome() {
+  // Dynamic counts
+  const songCountEl = document.getElementById('home-song-count');
+  if (songCountEl) songCountEl.textContent = SONGS.length;
+
+  const feat = document.getElementById('home-featured');
+  if (feat) {
+    const picks = HOME_FEATURED.map(id => SONGS.find(s => s.id === id)).filter(Boolean);
+    feat.innerHTML = picks.map(s => `
+      <button onclick="openSong('${s.id}')" class="panel rounded-xl p-4 text-left song-card">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <div class="font-semibold text-sm truncate">${s.title}</div>
+            <div class="text-xs ink-soft truncate">${s.artist}</div>
+          </div>
+          <span class="text-[10px] mono px-1.5 py-0.5 panel-2 rounded flex-shrink-0">${s.difficulty}</span>
+        </div>
+        <div class="flex flex-wrap gap-1 mt-2.5">
+          ${s.chords.slice(0,4).map(c => `<span class="text-[9px] mono px-1.5 py-0.5 panel-2 rounded">${c}</span>`).join('')}
+        </div>
+      </button>
+    `).join('');
+  }
+}
+
+function flashSoundTest(el) {
+  const original = el.textContent;
+  el.textContent = '♪ playing…';
+  setTimeout(() => { el.textContent = original; }, 1400);
+}
+
+function renderChordPad() {
+  const pad = document.getElementById('chord-pad');
+  const order = ['C','A','G','E','D','Am','Em','Dm','G7','D7','A7','E7','Cadd9','Dsus4','Em7','F'];
+  pad.innerHTML = order.map(n => `
+    <button onclick="strumChord('${n}'); flashChord(this)" class="panel-2 rounded-xl p-3 hover:border-amber-500 transition-colors flex flex-col items-center gap-1.5">
+      <div class="display font-bold">${n}</div>
+      <div class="text-[10px] ink-soft mono">${CHORDS[n].quality}</div>
+    </button>
+  `).join('');
+}
+
+function flashChord(el) {
+  el.style.borderColor = 'var(--amber)';
+  el.style.transform = 'scale(0.96)';
+  setTimeout(() => { el.style.borderColor = ''; el.style.transform = ''; }, 160);
+}
+
+/* ============================================================
+   TOOL FRETBOARD EXPLORER
+   ============================================================ */
+let fbState = { highlightPc: null, tuning: 'standard' };
+
+function renderToolFretboardControls() {
+  // Note buttons
+  const wrap = document.getElementById('fb-note-buttons');
+  if (wrap && !wrap.dataset.built) {
+    wrap.innerHTML = NOTES_SHARP.map((n, pc) => `
+      <button onclick="toggleFbNote(${pc})" data-fbpc="${pc}"
+        class="fb-note-btn px-3 py-1.5 rounded-lg text-xs font-bold mono panel-2 transition-colors">${n}</button>
+    `).join('') + `<button onclick="toggleFbNote(null)" class="px-3 py-1.5 rounded-lg text-xs font-medium panel-2 ink-soft">Clear</button>`;
+    wrap.dataset.built = '1';
+  }
+  // Tuning dropdown
+  const tSel = document.getElementById('fb-tuning');
+  if (tSel && !tSel.dataset.built) {
+    tSel.innerHTML = Object.entries(TUNINGS).map(([k,v]) =>
+      `<option value="${k}">${v.name}</option>`).join('');
+    tSel.dataset.built = '1';
+  }
+}
+
+function toggleFbNote(pc) {
+  fbState.highlightPc = (fbState.highlightPc === pc) ? null : pc;
+  renderToolFretboard();
+}
+
+function renderToolFretboard() {
+  renderToolFretboardControls();
+  const tSel = document.getElementById('fb-tuning');
+  fbState.tuning = tSel ? tSel.value : 'standard';
+  const showAll = document.getElementById('fb-show-all')?.checked;
+  const tuning = TUNINGS[fbState.tuning];
+
+  // Update note button states
+  document.querySelectorAll('.fb-note-btn').forEach(b => {
+    const pc = parseInt(b.dataset.fbpc);
+    if (pc === fbState.highlightPc) {
+      b.style.background = 'var(--amber)'; b.style.color = '#12151C';
+    } else { b.style.background = ''; b.style.color = ''; }
+  });
+
+  document.getElementById('tool-fretboard').innerHTML =
+    toolFretboardSVG(tuning, fbState.highlightPc, showAll);
+}
+
+function toolFretboardSVG(tuning, highlightPc, showAll) {
+  const FRETS = 15;
+  const stringCount = 6;
+  const W = 960, H = 250;
+  const padL = 50, padR = 20, padT = 24, padB = 28;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+  const fretW = innerW / FRETS;
+  const stringH = innerH / (stringCount - 1);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:820px" xmlns="http://www.w3.org/2000/svg">`;
+  // Wood-ish board
+  svg += `<rect x="${padL}" y="${padT}" width="${innerW}" height="${innerH}" fill="#232936" rx="4"/>`;
+  // Nut
+  svg += `<rect x="${padL-4}" y="${padT}" width="5" height="${innerH}" fill="#ECEFF4"/>`;
+  // Open-string label header
+  svg += `<text x="${padL-26}" y="${padT-8}" fill="#6B7689" font-size="9" font-family="JetBrains Mono" text-anchor="middle">open</text>`;
+
+  // Frets + numbers
+  for (let f = 1; f <= FRETS; f++) {
+    const x = padL + f * fretW;
+    svg += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+innerH}" stroke="#3D4757" stroke-width="1"/>`;
+    svg += `<text x="${padL + (f-0.5)*fretW}" y="${H-9}" fill="#6B7689" font-size="11" font-family="JetBrains Mono" text-anchor="middle">${f}</text>`;
+  }
+  // Inlay markers
+  [3,5,7,9].forEach(mf => {
+    const x = padL + (mf-0.5)*fretW;
+    svg += `<circle cx="${x}" cy="${padT+innerH/2}" r="4" fill="#3D4757"/>`;
+  });
+  const x12 = padL + (12-0.5)*fretW;
+  svg += `<circle cx="${x12}" cy="${padT+innerH*0.28}" r="4" fill="#3D4757"/>`;
+  svg += `<circle cx="${x12}" cy="${padT+innerH*0.72}" r="4" fill="#3D4757"/>`;
+  const x15 = padL + (15-0.5)*fretW;
+  svg += `<circle cx="${x15}" cy="${padT+innerH/2}" r="4" fill="#3D4757"/>`;
+
+  // Strings (top = highest)
+  for (let s = 0; s < stringCount; s++) {
+    const y = padT + s * stringH;
+    const lowToHighIdx = stringCount - 1 - s;
+    svg += `<line x1="${padL}" y1="${y}" x2="${padL+innerW}" y2="${y}" stroke="#6B7689" stroke-width="${1 + lowToHighIdx*0.2}" opacity="0.85"/>`;
+    const openNote = tuning.strings[lowToHighIdx];
+    svg += `<text x="${padL-26}" y="${y+4}" fill="#98A2B3" font-size="11" font-family="JetBrains Mono" text-anchor="middle">${openNote}</text>`;
+  }
+
+  // Note dots — clickable transparent rects + visible dots
+  for (let s = 0; s < stringCount; s++) {
+    const y = padT + s * stringH;
+    const lowToHighIdx = stringCount - 1 - s;
+    const openPc = NOTE_TO_PC[tuning.strings[lowToHighIdx]];
+    for (let f = 0; f <= FRETS; f++) {
+      const pc = (openPc + f) % 12;
+      const name = pcName(pc, false);
+      const isHi = (highlightPc !== null && pc === highlightPc);
+      const x = f === 0 ? padL - 26 : padL + (f-0.5)*fretW;
+      // Clickable hit area
+      const freq = (OPEN_STRINGS[lowToHighIdx].freq * Math.pow(2, f/12)).toFixed(2);
+      svg += `<rect x="${x-13}" y="${y-13}" width="26" height="26" fill="transparent" style="cursor:pointer" onclick="playFreq(${freq},1.2,'triangle',0,0.16)"/>`;
+      if (isHi) {
+        const isRoot = false;
+        svg += `<circle cx="${x}" cy="${y}" r="12" fill="#46C9B0" stroke="#12151C" stroke-width="1.5" style="pointer-events:none"/>`;
+        svg += `<text x="${x}" y="${y+3.5}" fill="#12151C" font-size="10" font-family="Inter" font-weight="700" text-anchor="middle" style="pointer-events:none">${name}</text>`;
+      } else if (showAll) {
+        // natural notes brighter, sharps dimmer
+        const isSharp = name.includes('#');
+        svg += `<circle cx="${x}" cy="${y}" r="11" fill="${isSharp ? '#323A48' : '#2B3340'}" stroke="#3D4757" stroke-width="1" style="pointer-events:none"/>`;
+        svg += `<text x="${x}" y="${y+3.5}" fill="${isSharp ? '#6B7689' : '#98A2B3'}" font-size="9" font-family="Inter" font-weight="600" text-anchor="middle" style="pointer-events:none">${name}</text>`;
+      }
+    }
+  }
+
+  svg += `</svg>`;
+  return svg;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+function openChord(name) {
+  const c = CHORDS[name]; if (!c) return;
+  document.getElementById('cm-name').textContent = name;
+  document.getElementById('cm-quality').textContent = c.quality + ' chord';
+  document.getElementById('cm-diagram').innerHTML = chordSVG(c, { size: 'lg' });
+  document.getElementById('cm-notes').textContent = 'Notes: ' + c.notes.join(' · ');
+  document.getElementById('cm-play').onclick = () => strumChord(name);
+  showModal('chord-modal');
+}
+
+function openLesson(id) {
+  const l = LESSONS.find(x => x.id === id); if (!l) return;
+  document.getElementById('lm-eyebrow').textContent = `${l.num} · ${l.level} · ${l.duration}`;
+  document.getElementById('lm-title').innerHTML = l.title;
+  document.getElementById('lm-desc').textContent = l.desc.replace(/&amp;/g, '&');
+  
+  const stepsEl = document.getElementById('lm-steps');
+  const done = lessonProgress[id] || 0;
+  stepsEl.innerHTML = l.steps.map((s, i) => {
+    const isDone = i < done;
+    return `
+      <button onclick="toggleStep('${id}', ${i})" class="step-row w-full text-left flex gap-3 p-3 rounded-xl panel-2 border ${isDone ? 'step-done' : ''}">
+        <div class="step-num w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5" style="background: ${isDone ? '#8BD46F' : '#323A48'}">
+          ${isDone ? '<i class="fa-solid fa-check text-[10px]"></i>' : (i + 1)}
+        </div>
+        <div class="flex-1">
+          <div class="font-semibold text-sm">${s.t}</div>
+          <div class="text-xs ink-soft mt-0.5">${s.d}</div>
+        </div>
+      </button>
+    `;
+  }).join('');
+  
+  const chordsWrap = document.getElementById('lm-chords-wrap');
+  if (l.chords && l.chords.length) {
+    chordsWrap.classList.remove('hidden');
+    document.getElementById('lm-chords').innerHTML = l.chords.map(c => `
+      <button onclick="openChord('${c}')" class="panel-2 rounded-xl p-2.5 flex flex-col items-center chord-card">
+        ${chordSVG(CHORDS[c], { size: 'sm' })}
+        <div class="mt-1 mono text-xs">${c}</div>
+      </button>
+    `).join('');
+  } else {
+    chordsWrap.classList.add('hidden');
+  }
+  
+  const songsWrap = document.getElementById('lm-songs-wrap');
+  if (l.songs && l.songs.length) {
+    const lessonSongs = l.songs.map(sid => SONGS.find(s => s.id === sid)).filter(Boolean);
+    if (lessonSongs.length) {
+      songsWrap.classList.remove('hidden');
+      document.getElementById('lm-songs').innerHTML = lessonSongs.map(s => `
+        <button onclick="closeModals(); setTimeout(() => openSong('${s.id}'), 180)" class="panel-2 rounded-xl p-3 text-left chord-card flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="font-semibold text-sm truncate">${s.title}</div>
+            <div class="text-xs ink-soft truncate">${s.artist}</div>
+            <div class="flex flex-wrap gap-1 mt-1.5">
+              ${s.chords.slice(0,4).map(c => `<span class="text-[9px] mono px-1.5 py-0.5 panel rounded" style="border:1px solid var(--border)">${c}</span>`).join('')}
+            </div>
+          </div>
+          <i class="fa-solid fa-arrow-right ink-soft text-xs flex-shrink-0"></i>
+        </button>
+      `).join('');
+    } else {
+      songsWrap.classList.add('hidden');
+    }
+  } else {
+    songsWrap.classList.add('hidden');
+  }
+  
+  showModal('lesson-modal');
+}
+
+function toggleStep(lessonId, stepIdx) {
+  const l = LESSONS.find(x => x.id === lessonId);
+  if (!lessonProgress[lessonId]) lessonProgress[lessonId] = 0;
+  const curr = lessonProgress[lessonId];
+  if (stepIdx === curr) {
+    lessonProgress[lessonId] = stepIdx + 1;
+    if (lessonProgress[lessonId] >= l.steps.length) {
+      completedLessons.add(lessonId);
+      toast('Lesson complete. Nice teaching!', 'moss');
+    }
+  } else if (stepIdx < curr) {
+    lessonProgress[lessonId] = stepIdx;
+    completedLessons.delete(lessonId);
+  } else {
+    toast('Finish the earlier steps first', 'amber');
+    return;
+  }
+  openLesson(lessonId);
+  renderLessons();
+}
+
+function openSong(id) {
+  const s = SONGS.find(x => x.id === id); if (!s) return;
+  document.getElementById('sm-artist').textContent = `${s.artist} · ${s.year}`;
+  document.getElementById('sm-title').textContent = s.title;
+  document.getElementById('sm-key').textContent = `Key ${s.key}`;
+  document.getElementById('sm-capo').textContent = s.capo > 0 ? `Capo ${s.capo}` : 'No capo';
+  document.getElementById('sm-bpm').textContent = `${s.bpm} BPM`;
+  document.getElementById('sm-difficulty').textContent = s.difficulty;
+  document.getElementById('sm-strum').textContent = s.strum;
+  document.getElementById('sm-notes').textContent = s.notes;
+
+  // Build search-based deep links (no copying — just routes to the source)
+  const q = encodeURIComponent(`${s.title} ${s.artist}`);
+  document.getElementById('sm-ug-link').href =
+    `https://www.ultimate-guitar.com/search.php?search_type=title&value=${q}`;
+  document.getElementById('sm-yt-link').href =
+    `https://www.youtube.com/results?search_query=${q}`;
+  
+  const chordsEl = document.getElementById('sm-chords');
+  chordsEl.innerHTML = s.chords.map(c => {
+    if (!CHORDS[c]) {
+      // Unknown chord — show name only
+      return `<div class="panel-2 rounded-xl p-3 flex-shrink-0 flex flex-col items-center justify-center min-w-[80px]"><div class="display font-bold text-sm">${c}</div><div class="text-[10px] ink-soft">no diagram</div></div>`;
+    }
+    return `
+      <button onclick="strumChord('${c}'); flashChord(this)" class="panel-2 rounded-xl p-2 flex-shrink-0 chord-card flex flex-col items-center">
+        ${chordSVG(CHORDS[c], { size: 'sm' })}
+        <div class="mt-1 mono text-xs">${c}</div>
+      </button>
+    `;
+  }).join('');
+  
+  const sectionsEl = document.getElementById('sm-sections');
+  if (s.sections && s.sections.length > 0) {
+    sectionsEl.innerHTML = s.sections.map(sec => `
+      <div class="panel-2 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-xs font-semibold uppercase tracking-wider amber">${sec.name}</div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          ${sec.bars.map(bar => `<span class="mono text-sm px-3 py-1.5 rounded panel border" style="border-color: var(--border)">${bar}</span>`).join('')}
+        </div>
+      </div>
+    `).join('');
+  } else {
+    // No sectional breakdown — show chord palette guidance
+    sectionsEl.innerHTML = `
+      <div class="panel-2 rounded-xl p-4 border-l-4" style="border-left-color: var(--amber)">
+        <div class="text-xs font-semibold uppercase tracking-wider amber mb-2">Chord Palette</div>
+        <div class="flex flex-wrap gap-2 mb-3">
+          ${s.chords.map(c => `<span class="mono text-sm px-3 py-1.5 rounded panel border" style="border-color: var(--border)">${c}</span>`).join(' ')}
+        </div>
+        <p class="text-xs ink-soft leading-relaxed">
+          Bar-by-bar progression not mapped for this one yet. Listen to the recording and identify when each chord lands. Most songs in this style follow common patterns — try <span class="mono">${s.chords.slice(0,4).join(' – ')}</span> as a starting guess.
+        </p>
+      </div>
+    `;
+  }
+  
+  const riffWrap = document.getElementById('sm-riff-wrap');
+  if (s.riff) {
+    riffWrap.classList.remove('hidden');
+    document.getElementById('sm-riff').textContent = s.riff;
+  } else {
+    riffWrap.classList.add('hidden');
+  }
+  
+  showModal('song-modal');
+}
+
+function showModal(id) {
+  closeModals(false);
+  const m = document.getElementById(id);
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModals(restoreScroll = true) {
+  ['chord-modal','lesson-modal','song-modal'].forEach(id => {
+    const m = document.getElementById(id);
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+  });
+  if (restoreScroll) document.body.style.overflow = '';
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function show(view) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+  document.getElementById('view-' + view).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.remove('nav-active');
+    b.classList.add('ink-soft');
+  });
+  document.querySelectorAll(`.nav-btn[data-nav="${view}"]`).forEach(b => {
+    b.classList.add('nav-active');
+    b.classList.remove('ink-soft');
+  });
+  // Render on entry
+  if (view === 'home') renderHome();
+  if (view === 'lessons') renderLessons();
+  if (view === 'chords') renderChords();
+  if (view === 'caged') renderCAGED();
+  if (view === 'theory') renderTheory();
+  if (view === 'scales') renderScales();
+  if (view === 'finder') { renderFinderControls(); renderFinder(); }
+  if (view === 'songs') renderSongs();
+  if (view === 'tools') { renderChordPad(); renderToolFretboard(); }
+  
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function setScale(s) { currentScale = s; renderScales(); }
+function filterSongs(g) { currentGenre = g; renderSongs(); }
+
+/* ============================================================
+   METRONOME
+   ============================================================ */
+function updateBpmDisplay() {
+  document.getElementById('bpm-display').textContent = metro.bpm;
+  document.getElementById('bpm-slider').value = metro.bpm;
+}
+
+function setBpm(delta) {
+  metro.bpm = Math.max(40, Math.min(200, metro.bpm + delta));
+  updateBpmDisplay();
+  if (metro.running) { stopMetronome(); startMetronome(); }
+}
+
+function toggleMetronome() {
+  if (metro.running) stopMetronome(); else startMetronome();
+}
+
+function startMetronome() {
+  ensureAudio();
+  metro.running = true;
+  metro.beat = 0;
+  document.getElementById('metro-icon').className = 'fa-solid fa-pause';
+  document.getElementById('metro-text').textContent = 'Stop';
+  document.getElementById('metro-btn').style.background = 'var(--rust)';
+  const tick = () => {
+    metroClick(metro.beat === 0);
+    const dots = document.querySelectorAll('.beat-dot');
+    dots.forEach((d, i) => {
+      if (i === metro.beat) {
+        d.style.background = metro.beat === 0 ? 'var(--amber)' : 'var(--moss)';
+        d.classList.add('beat-pulse');
+        setTimeout(() => d.classList.remove('beat-pulse'), 100);
+      } else {
+        d.style.background = '#323A48';
+      }
+    });
+    metro.beat = (metro.beat + 1) % 4;
+  };
+  tick();
+  metro.intervalId = setInterval(tick, 60000 / metro.bpm);
+}
+
+function stopMetronome() {
+  metro.running = false;
+  if (metro.intervalId) clearInterval(metro.intervalId);
+  metro.intervalId = null;
+  document.getElementById('metro-icon').className = 'fa-solid fa-play';
+  document.getElementById('metro-text').textContent = 'Start';
+  document.getElementById('metro-btn').style.background = 'var(--moss)';
+  document.querySelectorAll('.beat-dot').forEach(d => d.style.background = '#323A48');
+}
+
+function tapTempo() {
+  const now = Date.now();
+  metro.taps = metro.taps.filter(t => now - t < 3000);
+  metro.taps.push(now);
+  if (metro.taps.length >= 2) {
+    const diffs = [];
+    for (let i = 1; i < metro.taps.length; i++) diffs.push(metro.taps[i] - metro.taps[i-1]);
+    const avg = diffs.reduce((a,b) => a+b, 0) / diffs.length;
+    const bpm = Math.round(60000 / avg);
+    if (bpm >= 40 && bpm <= 200) {
+      metro.bpm = bpm;
+      updateBpmDisplay();
+      if (metro.running) { stopMetronome(); startMetronome(); }
+    }
+  }
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function toast(msg, color = 'moss') {
+  let bg = '#FF7A5C', fg = '#fff';
+  if (color === 'moss' || color === 'ok') { bg = '#8BD46F'; fg = '#12151C'; }
+  else if (color === 'amber') { bg = '#46C9B0'; fg = '#12151C'; }
+  else { bg = '#FF7A5C'; fg = '#fff'; } // rust / default
+  const t = document.createElement('div');
+  t.className = 'fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-full text-sm font-medium shadow-2xl z-[100]';
+  t.style.cssText = `background: ${bg}; color: ${fg};`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; }, 2400);
+  setTimeout(() => t.remove(), 2800);
+}
+
+/* ============================================================
+   DOWNLOAD
+   ============================================================ */
+function downloadFile() {
+  const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'guitar-for-dad.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Saved. Open the file anytime, works offline.', 'moss');
+}
+
+/* ============================================================
+   FINDER ENGINE — chord & scale finder with alt tunings
+   ============================================================ */
+const NOTES_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const NOTES_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+// Map any note name to a pitch class 0-11
+const NOTE_TO_PC = {
+  'C':0,'B#':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'Fb':4,'F':5,'E#':5,
+  'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11
+};
+
+// Tunings: strings listed LOW to HIGH, each as a note name (octave implied by index)
+const TUNINGS = {
+  'standard':    { name: 'Standard (EADGBE)', strings: ['E','A','D','G','B','E'], octs: [2,2,3,3,3,4] },
+  'drop-d':      { name: 'Drop D (DADGBE)',   strings: ['D','A','D','G','B','E'], octs: [2,2,3,3,3,4] },
+  'open-g':      { name: 'Open G (DGDGBD)',   strings: ['D','G','D','G','B','D'], octs: [2,2,3,3,3,4] },
+  'open-d':      { name: 'Open D (DADF#AD)',  strings: ['D','A','D','F#','A','D'], octs: [2,2,3,3,3,4] },
+  'open-e':      { name: 'Open E (EBEG#BE)',  strings: ['E','B','E','G#','B','E'], octs: [2,2,3,3,3,4] },
+  'dadgad':      { name: 'DADGAD',            strings: ['D','A','D','G','A','D'], octs: [2,2,3,3,3,4] },
+  'half-down':   { name: 'Half-step down (Eb)', strings: ['Eb','Ab','Db','Gb','Bb','Eb'], octs: [2,2,3,3,3,4] },
+  'open-c':      { name: 'Open C (CGCGCE)',   strings: ['C','G','C','G','C','E'], octs: [2,2,3,4,4,4] },
+  'drop-c':      { name: 'Drop C (CGCFAD)',   strings: ['C','G','C','F','A','D'], octs: [2,2,3,3,3,4] }
+};
+
+// Chord formulas — intervals in semitones from root
+const CHORD_FORMULAS = {
+  'maj':      { name: 'Major',          ints: [0,4,7],        sym: '' },
+  'min':      { name: 'Minor',          ints: [0,3,7],        sym: 'm' },
+  'dim':      { name: 'Diminished',     ints: [0,3,6],        sym: 'dim' },
+  'aug':      { name: 'Augmented',      ints: [0,4,8],        sym: 'aug' },
+  'sus2':     { name: 'Sus2',           ints: [0,2,7],        sym: 'sus2' },
+  'sus4':     { name: 'Sus4',           ints: [0,5,7],        sym: 'sus4' },
+  'maj7':     { name: 'Major 7th',      ints: [0,4,7,11],     sym: 'maj7' },
+  'min7':     { name: 'Minor 7th',      ints: [0,3,7,10],     sym: 'm7' },
+  'dom7':     { name: 'Dominant 7th',   ints: [0,4,7,10],     sym: '7' },
+  'min7b5':   { name: 'Half-diminished',ints: [0,3,6,10],     sym: 'm7b5' },
+  'dim7':     { name: 'Diminished 7th', ints: [0,3,6,9],      sym: 'dim7' },
+  'maj6':     { name: 'Major 6th',      ints: [0,4,7,9],      sym: '6' },
+  'min6':     { name: 'Minor 6th',      ints: [0,3,7,9],      sym: 'm6' },
+  'add9':     { name: 'Add 9',          ints: [0,4,7,14],     sym: 'add9' },
+  'maj9':     { name: 'Major 9th',      ints: [0,4,7,11,14],  sym: 'maj9' },
+  'dom9':     { name: 'Dominant 9th',   ints: [0,4,7,10,14],  sym: '9' },
+  'power':    { name: 'Power chord (5)',ints: [0,7],          sym: '5' }
+};
+
+// Interval names for display
+const INTERVAL_NAMES = {
+  0:'Root', 2:'2nd', 3:'♭3rd', 4:'3rd', 5:'4th', 6:'♭5th/♯4',
+  7:'5th', 8:'♯5/♭6', 9:'6th', 10:'♭7th', 11:'7th', 14:'9th'
+};
+
+// Scale formulas — intervals in semitones from root (within an octave)
+const SCALE_FORMULAS = {
+  'major':       { name: 'Major (Ionian)',     ints: [0,2,4,5,7,9,11] },
+  'minor':       { name: 'Natural Minor',      ints: [0,2,3,5,7,8,10] },
+  'minor-pent':  { name: 'Minor Pentatonic',   ints: [0,3,5,7,10] },
+  'major-pent':  { name: 'Major Pentatonic',   ints: [0,2,4,7,9] },
+  'blues':       { name: 'Blues',              ints: [0,3,5,6,7,10] },
+  'dorian':      { name: 'Dorian',             ints: [0,2,3,5,7,9,10] },
+  'mixolydian':  { name: 'Mixolydian',         ints: [0,2,4,5,7,9,10] },
+  'harmonic-min':{ name: 'Harmonic Minor',     ints: [0,2,3,5,7,8,11] }
+};
+
+let finder = {
+  mode: 'chord',     // 'chord' | 'scale'
+  tuning: 'standard',
+  root: 0,           // pitch class
+  chordType: 'maj',
+  scaleType: 'minor-pent'
+};
+
+function pcName(pc, preferFlat) {
+  return (preferFlat ? NOTES_FLAT : NOTES_SHARP)[((pc % 12) + 12) % 12];
+}
+
+// Build the set of pitch classes for current selection
+function finderPitchClasses() {
+  const formula = finder.mode === 'chord'
+    ? CHORD_FORMULAS[finder.chordType].ints
+    : SCALE_FORMULAS[finder.scaleType].ints;
+  // Map: pitch class -> interval (for labelling). Keep smallest interval if duplicates.
+  const map = {};
+  formula.forEach(iv => {
+    const pc = (finder.root + iv) % 12;
+    if (!(pc in map)) map[pc] = iv;
+  });
+  return map; // { pc: interval }
+}
+
+function renderFinderControls() {
+  // Tuning dropdown
+  const tSel = document.getElementById('finder-tuning');
+  tSel.innerHTML = Object.entries(TUNINGS).map(([k,v]) =>
+    `<option value="${k}" ${k===finder.tuning?'selected':''}>${v.name}</option>`).join('');
+
+  // Root buttons
+  const rootWrap = document.getElementById('finder-root-buttons');
+  rootWrap.innerHTML = NOTES_SHARP.map((n, pc) => `
+    <button onclick="setFinderRoot(${pc})" 
+      class="finder-root-btn py-1.5 rounded-lg text-xs font-bold mono transition-colors ${pc===finder.root?'':'panel-2'}"
+      style="${pc===finder.root?'background: var(--amber); color: #12151C;':''}">${n}</button>
+  `).join('');
+
+  // Type dropdown
+  const typeSel = document.getElementById('finder-type');
+  const label = document.getElementById('finder-type-label');
+  if (finder.mode === 'chord') {
+    label.textContent = 'Chord Quality';
+    typeSel.innerHTML = Object.entries(CHORD_FORMULAS).map(([k,v]) =>
+      `<option value="${k}" ${k===finder.chordType?'selected':''}>${v.name}</option>`).join('');
+  } else {
+    label.textContent = 'Scale Type';
+    typeSel.innerHTML = Object.entries(SCALE_FORMULAS).map(([k,v]) =>
+      `<option value="${k}" ${k===finder.scaleType?'selected':''}>${v.name}</option>`).join('');
+  }
+
+  // Mode buttons
+  document.querySelectorAll('.fmode-btn').forEach(b => {
+    if (b.dataset.fmode === finder.mode) {
+      b.style.background = 'var(--amber)'; b.style.color = '#12151C';
+    } else { b.style.background=''; b.style.color=''; }
+  });
+}
+
+function setFinderMode(m) { finder.mode = m; renderFinder(); }
+function setFinderRoot(pc) { finder.root = pc; renderFinder(); }
+
+function renderFinder() {
+  // Sync state from selects
+  finder.tuning = document.getElementById('finder-tuning').value;
+  const typeVal = document.getElementById('finder-type').value;
+  if (finder.mode === 'chord' && CHORD_FORMULAS[typeVal]) finder.chordType = typeVal;
+  if (finder.mode === 'scale' && SCALE_FORMULAS[typeVal]) finder.scaleType = typeVal;
+
+  renderFinderControls();
+
+  const tuning = TUNINGS[finder.tuning];
+  document.getElementById('finder-tuning-strings').textContent =
+    'Low → High: ' + tuning.strings.join(' ');
+
+  // Determine flat/sharp preference (flats for flat-ish roots & minor/some)
+  const flatRoots = [1,3,5,8,10]; // Db Eb F Ab Bb roots usually spelled flat
+  const preferFlat = flatRoots.includes(finder.root) ||
+    (finder.mode === 'chord' && /b/.test(CHORD_FORMULAS[finder.chordType].sym));
+
+  const rootName = pcName(finder.root, preferFlat);
+  const pcMap = finderPitchClasses();
+
+  // Title
+  let title;
+  if (finder.mode === 'chord') {
+    title = rootName + CHORD_FORMULAS[finder.chordType].sym;
+    if (CHORD_FORMULAS[finder.chordType].sym === '') title = rootName + ' major';
+  } else {
+    title = rootName + ' ' + SCALE_FORMULAS[finder.scaleType].name;
+  }
+  document.getElementById('finder-title').textContent = title;
+
+  // Fretboard
+  document.getElementById('finder-fretboard').innerHTML =
+    finderFretboardSVG(tuning, pcMap, preferFlat);
+
+  // Formula box
+  const formulaInts = finder.mode === 'chord'
+    ? CHORD_FORMULAS[finder.chordType].ints
+    : SCALE_FORMULAS[finder.scaleType].ints;
+  const fEl = document.getElementById('finder-formula');
+  const ivLabels = formulaInts.map(iv => INTERVAL_NAMES[iv] || (iv+'st')).join(' · ');
+  if (finder.mode === 'chord') {
+    fEl.innerHTML = `
+      <p class="mb-2">A <span class="font-semibold text-white">${CHORD_FORMULAS[finder.chordType].name.toLowerCase()}</span> chord is built by stacking these intervals from the root:</p>
+      <p class="mono amber">${ivLabels}</p>
+      <p class="mt-3 ink-soft text-xs">Play any combination of these notes — in any octave, on any strings — and you have a ${title} chord. The fretboard shows every place each note lives.</p>`;
+  } else {
+    fEl.innerHTML = `
+      <p class="mb-2">The <span class="font-semibold text-white">${SCALE_FORMULAS[finder.scaleType].name}</span> scale uses these scale degrees:</p>
+      <p class="mono amber">${ivLabels}</p>
+      <p class="mt-3 ink-soft text-xs">Every dot on the fretboard is one of these notes. Stay inside the dots and everything you play will sound in-key.</p>`;
+  }
+
+  // Notes list
+  const notesList = document.getElementById('finder-notes-list');
+  const sortedPcs = Object.keys(pcMap).map(Number).sort((a,b) => pcMap[a]-pcMap[b]);
+  notesList.innerHTML = sortedPcs.map(pc => {
+    const isRoot = pc === finder.root;
+    return `<button onclick="playFreq(${NOTE_FREQ[pcName(pc,preferFlat)+'4'] || 440}, 1, 'triangle', 0, 0.18)" 
+      class="px-3 py-1.5 rounded-lg mono text-sm font-bold ${isRoot?'':'panel-2'}"
+      style="${isRoot?'background: var(--rust); color: #fff;':''}">
+      ${pcName(pc, preferFlat)}<span class="text-[9px] opacity-60 ml-1">${INTERVAL_NAMES[pcMap[pc]]||''}</span>
+    </button>`;
+  }).join('');
+
+  // Help text
+  const help = document.getElementById('finder-help');
+  if (finder.tuning !== 'standard') {
+    help.innerHTML = `You're in <span class="amber font-semibold">${tuning.name}</span>. The shapes look different from standard tuning — that's the point. Open tunings make some chords ring with open strings.`;
+  } else {
+    help.innerHTML = finder.mode === 'chord'
+      ? 'Tip: the lowest root (red) is usually the best bass note to start your chord from.'
+      : 'Tip: find the lowest red root and start your scale practice there.';
+  }
+}
+
+// Fretboard for the finder — shows frets 0-15, labels notes
+function finderFretboardSVG(tuning, pcMap, preferFlat) {
+  const FRETS = 15;
+  const stringCount = 6;
+  const W = 920, H = 230;
+  const padL = 46, padR = 20, padT = 22, padB = 26;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+  const fretW = innerW / FRETS;
+  const stringH = innerH / (stringCount - 1);
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:760px" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<rect x="${padL}" y="${padT}" width="${innerW}" height="${innerH}" fill="#232936" rx="4"/>`;
+
+  // Nut
+  svg += `<rect x="${padL-3}" y="${padT}" width="4" height="${innerH}" fill="#ECEFF4"/>`;
+
+  // Frets + numbers
+  for (let f = 1; f <= FRETS; f++) {
+    const x = padL + f * fretW;
+    svg += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+innerH}" stroke="#3D4757" stroke-width="1"/>`;
+    svg += `<text x="${padL + (f-0.5)*fretW}" y="${H-8}" fill="#6B7689" font-size="11" font-family="JetBrains Mono" text-anchor="middle">${f}</text>`;
+  }
+  // Inlay markers
+  [3,5,7,9,15].forEach(mf => {
+    const x = padL + (mf-0.5)*fretW;
+    svg += `<circle cx="${x}" cy="${padT+innerH/2}" r="3.5" fill="#3D4757"/>`;
+  });
+  // 12th double dot
+  const x12 = padL + (12-0.5)*fretW;
+  svg += `<circle cx="${x12}" cy="${padT+innerH*0.28}" r="3.5" fill="#3D4757"/>`;
+  svg += `<circle cx="${x12}" cy="${padT+innerH*0.72}" r="3.5" fill="#3D4757"/>`;
+
+  // Strings — draw high to low visually (top = high string). tuning.strings is low->high.
+  for (let s = 0; s < stringCount; s++) {
+    const y = padT + s * stringH;
+    const lowToHighIdx = stringCount - 1 - s; // s=0 (top) = highest string
+    svg += `<line x1="${padL}" y1="${y}" x2="${padL+innerW}" y2="${y}" stroke="#6B7689" stroke-width="${1 + lowToHighIdx*0.18}" opacity="0.85"/>`;
+    // string label (open note)
+    const openNote = tuning.strings[lowToHighIdx];
+    svg += `<text x="${padL-12}" y="${y+4}" fill="#98A2B3" font-size="11" font-family="JetBrains Mono" text-anchor="end">${openNote}</text>`;
+  }
+
+  // Dots for each string/fret where note is in the set
+  for (let s = 0; s < stringCount; s++) {
+    const y = padT + s * stringH;
+    const lowToHighIdx = stringCount - 1 - s;
+    const openPc = NOTE_TO_PC[tuning.strings[lowToHighIdx]];
+    for (let f = 0; f <= FRETS; f++) {
+      const pc = (openPc + f) % 12;
+      if (pc in pcMap) {
+        const iv = pcMap[pc];
+        const isRoot = (iv === 0);
+        const x = f === 0 ? padL - 16 : padL + (f-0.5)*fretW;
+        const r = 12;
+        const fill = isRoot ? '#FF7A5C' : '#46C9B0';
+        svg += `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="#12151C" stroke-width="1.5"/>`;
+        svg += `<text x="${x}" y="${y+3.5}" fill="#12151C" font-size="10" font-family="Inter" font-weight="700" text-anchor="middle">${pcName(pc, preferFlat)}</text>`;
+      }
+    }
+  }
+
+  svg += `</svg>`;
+  return svg;
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init() {
+  // BPM slider
+  document.getElementById('bpm-slider').addEventListener('input', (e) => {
+    metro.bpm = parseInt(e.target.value);
+    updateBpmDisplay();
+    if (metro.running) { stopMetronome(); startMetronome(); }
+  });
+  
+  // Keyboard: ESC to close modals
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModals(); });
+  
+  updateAudioBadge();
+  show('home');
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
